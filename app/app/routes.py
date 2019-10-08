@@ -59,11 +59,23 @@ def build_failed():
 def build_passed():
     pass
 
-
+# docker run -it --rm \
+#         -v $HOST_PATH/tests/browser:/home/pptruser/tests/browser \
+#         -v $HOST_PATH/src:/home/pptruser/src \
+#         -v $HOST_PATH/containers/pupp/jest.config.js:/home/pptruser/jest.config.js \
+#         -v $HOST_PATH/containers/pupp/jest-puppeteer.config.js:/home/pptruser/jest-puppeteer.config.js \
+#         -v $HOST_PATH/.babelrc:/home/pptruser/.babelrc \
+#         -e TIG_ADDRESS=$1 \
+#         --name devenv-browser-test \
+#         --entrypoint "npm" \
+#         airladon/pynode:python3.7.4-node12.10.0-npm6.11.3-puppeteer1.20.0-chrome79.0.3921.0 \
+#         "run" "jest" "--" "--runInBand" $@
+        
 # Pipeline related methods
 def pipeline(f, callback):
     proc = subprocess.run(
-        ['./repo/runner.sh'], stdout=f, stderr=f, shell=True)
+        [f'./repo/logdrain1/start_env.sh', 'dev-server'],
+        stdout=f, stderr=f, shell=True)
     callback(proc)
 
 

@@ -1,2 +1,17 @@
 Cloning into './repo/logdrain'...
-this is the runner
+
+[1m[36m============ Checking Environment Variables ============(B[m
+./repo/logdrain1/start_env.sh: 57: [: =: unexpected operator
+./repo/logdrain1/start_env.sh: 64: [: =: unexpected operator
+./repo/logdrain1/start_env.sh: 70: [: =: unexpected operator
+./repo/logdrain1/start_env.sh: 76: [: =: unexpected operator
+./repo/logdrain1/start_env.sh: 84: [: =: unexpected operator
+
+[1m[36m================= Building container ===================(B[m
+invalid argument "logdrain-" for "-t, --tag" flag: invalid reference format
+See 'docker build --help'.
+
+[1m[36m================= Starting container ===================(B[m
+./repo/logdrain1/start_env.sh: 102: [: =: unexpected operator
+docker: invalid publish opts format (should be name=value but got '5000:').
+See 'docker run --help'.
