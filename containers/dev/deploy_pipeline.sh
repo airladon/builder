@@ -47,19 +47,19 @@ title "Run lint and local tests"
 ./build.sh prod
 check_status
 
-###########################################################################
-title "Deploy to test server"
-./build.sh deploy test skip-tests skip-build
-check_status
+# ###########################################################################
+# title "Deploy to test server"
+# ./build.sh deploy test skip-tests skip-build
+# check_status
 
-title "Delay for test server to restart"
-sleep 5s
-check_status
+# title "Delay for test server to restart"
+# sleep 5s
+# check_status
 
-# Run Deploy Tests here
-title "Run tests on test server"
-pytest tests/remote/test tests/remote/common --server test
-check_status
+# # Run Deploy Tests here
+# title "Run tests on test server"
+# pytest tests/remote/test tests/remote/common --server test
+# check_status
 
 ###########################################################################
 CURRENT_VERSION=`heroku releases -a "$HEROKU_PROD_APP_NAME" | sed -n '1p' | sed 's/^.*: //'`

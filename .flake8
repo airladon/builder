@@ -5,4 +5,5 @@ exclude =
     __pycache__,
     containers,
     env
+    repo
 max-complexity = 10

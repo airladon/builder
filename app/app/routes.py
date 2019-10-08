@@ -7,7 +7,7 @@ import shutil
 import os
 # from subprocess import PIPE, STDOUT
 import multiprocessing
-import time
+# import time
 # import datetime
 # from werkzeug.urls import url_parse
 
@@ -64,8 +64,6 @@ def repository_cloned(process_completion):
         app.logger.error('Clone failed')
         return
     app.logger.info('Cloning complete')
-    # proc = subprocess.run(['git', 'checkout', 'file-upload'])
-    # print(proc)
     start_pipline()
 
 
@@ -123,6 +121,14 @@ def start_build():
 
 @app.route('/ls')
 def ls():
-    ls_output = subprocess.run(["ls", 'repo'], capture_output=True)
-    app.logger.info(ls_output.stdout.decode('utf-8'))
-    return jsonify({'status': 'ok'})
+    # ls_output = subprocess.run(["ls"], capture_output=True)
+    # return jsonify({'status': ls_output.stdout.decode('utf-8')})
+    # app.logger.info(ls_output.stdout.decode('utf-8'))
+    f = open(log_file, 'r')
+
+    return jsonify({'status': f.readlines()})
+
+
+# @app.route('/check', methods=['POST'])
+# def check():
+#     print(request.args)
