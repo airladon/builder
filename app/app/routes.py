@@ -30,7 +30,7 @@ def build_passed():
 # Pipeline related methods
 def pipeline(f, callback):
     proc = subprocess.run(
-        [f'./repo/logdrain1/start_env.sh deploy_pipeline'],
+        [f'{local_repo}/start_env.sh deploy_pipeline'],
         stdout=f, stderr=f, shell=True)
     callback(proc)
 
@@ -42,7 +42,7 @@ def pipeline_finished(process_completion):
         app.logger.error('Deploy pipline failed')
         build_failed()
         return
-    app.logger.info('Pipline finished successfully')
+    app.logger.info('Pipeline finished successfully')
     build_passed()
 
 
@@ -64,6 +64,8 @@ def repository_cloned(process_completion):
         app.logger.error('Clone failed')
         return
     app.logger.info('Cloning complete')
+    # proc = subprocess.run(['git', 'checkout', 'file-upload'])
+    # print(proc)
     start_pipline()
 
 
@@ -74,7 +76,8 @@ class proc:
 
 def clone(f, callback):
     proc = subprocess.run(
-        ['git', 'clone', remote_repo, local_repo], stdout=f, stderr=f)
+        ['git', 'clone', '--single-branch', '--branch', 'file-upload',
+         remote_repo, local_repo], stdout=f, stderr=f)
     callback(proc)
     # print(f)
     # f.write('cloning started\n')
