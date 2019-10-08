@@ -18,39 +18,6 @@ log_handler = None
 local_repo = f'./repo/{project}'
 jobs = []
 
-# class thread_with_exception(threading.Thread):
-#     def __init__(self, name):
-#         threading.Thread.__init__(self)
-#         self.name = name
-
-#     def get_id(self):
-#         # returns id of the respective thread
-#         if hasattr(self, '_thread_id'):
-#             return self._thread_id
-#         for id, thread in threading._active.items():
-#             if thread is self:
-#                 return id
-
-#     def raise_exception(self):
-#         thread_id = self.get_id()
-#         res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
-#             thread_id,
-#             ctypes.py_object(SystemExit))
-#         if res > 1:
-#             ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
-#             print('Exception raise failure')
-
-
-# def start(callback, *popenArgs, **pOpenKWArgs):
-#     def runInThread(callback, popenArgs):
-#         proc = subprocess.Popen(*popenArgs, **pOpenKWArgs)
-#         proc.wait()
-#         callback(proc)
-#         return
-#     clone_job = thread_with_exception(
-#         target=runInThread, args=(callback, popenArgs))
-#     clone_job.start()
-#     return clone_job
 
 def build_failed():
     pass
@@ -59,17 +26,6 @@ def build_failed():
 def build_passed():
     pass
 
-# docker run -it --rm \
-#         -v $HOST_PATH/tests/browser:/home/pptruser/tests/browser \
-#         -v $HOST_PATH/src:/home/pptruser/src \
-#         -v $HOST_PATH/containers/pupp/jest.config.js:/home/pptruser/jest.config.js \
-#         -v $HOST_PATH/containers/pupp/jest-puppeteer.config.js:/home/pptruser/jest-puppeteer.config.js \
-#         -v $HOST_PATH/.babelrc:/home/pptruser/.babelrc \
-#         -e TIG_ADDRESS=$1 \
-#         --name devenv-browser-test \
-#         --entrypoint "npm" \
-#         airladon/pynode:python3.7.4-node12.10.0-npm6.11.3-puppeteer1.20.0-chrome79.0.3921.0 \
-#         "run" "jest" "--" "--runInBand" $@
 
 # Pipeline related methods
 def pipeline(f, callback):
@@ -154,30 +110,18 @@ def start_build():
     global jobs
     if jobs is not None:
         for job in jobs:
-            # app.logger.info(f'Terminating {job}, {job.is_alive()}')
             job.terminate()
     jobs = []
-    # app.logger.info('Starting')
     if os.path.isdir(local_repo):
         shutil.rmtree(local_repo)
     if os.path.isdir(local_repo):
         raise Exception('Local repository not deleted')
     clone_repo()
-    # app.logger.info(f'job2: {jobs}')
-    # app.logger.info('Build Started')
     return jsonify({'status': 'ok'})
 
 
 @app.route('/ls')
 def ls():
-    # f = open('./log.txt', 'w')
     ls_output = subprocess.run(["ls", 'repo'], capture_output=True)
     app.logger.info(ls_output.stdout.decode('utf-8'))
-    # f.close()
-    # if not os.path.isfile('./log.txt'):
-    #     return jsonify({'status': 'no log file'})
-
-    # f = open('./log.txt', 'r')
-    # print(f.readlines())
-
     return jsonify({'status': 'ok'})
