@@ -52,21 +52,68 @@ jobs = []
 #     clone_job.start()
 #     return clone_job
 
+def build_failed():
+    pass
 
+
+def build_passed():
+    pass
+
+
+# Pipeline related methods
+def pipeline(f, callback):
+    proc = subprocess.run(
+        ['./repo/runner.sh'], stdout=f, stderr=f, shell=True)
+    callback(proc)
+
+
+def pipeline_finished(process_completion):
+    if log_handler is not None:
+        log_handler.close()
+    if process_completion.returncode != 0:
+        app.logger.error('Deploy pipline failed')
+        build_failed()
+        return
+    app.logger.info('Pipline finished successfully')
+    build_passed()
+
+
+def start_pipline():
+    log_handler = open(log_file, 'a')
+    clone_job = multiprocessing.Process(
+        target=pipeline, args=(log_handler, pipeline_finished))
+    clone_job.start()
+    global jobs
+    jobs.append(clone_job)
+    app.logger.info('starting pipline')
+
+
+# Clone repo related methods
 def repository_cloned(process_completion):
     if log_handler is not None:
         log_handler.close()
-    app.logger.info('Clone Finished')
-    app.logger.info(process_completion)
-    f = open(log_file, 'r')
-    app.logger.info(f.readlines())
+    if process_completion.returncode != 0:
+        app.logger.error('Clone failed')
+        return
+    app.logger.info('Cloning complete')
+    start_pipline()
+
+
+class proc:
+    def __init__(self):
+        self.returncode = 0
 
 
 def clone(f, callback):
-    # proc = subprocess.run(
-    #     ['git', 'clone', remote_repo, local_repo], stdout=f, stderr=f)
-    time.sleep(2)
-    # callback(proc)
+    proc = subprocess.run(
+        ['git', 'clone', remote_repo, local_repo], stdout=f, stderr=f)
+    callback(proc)
+    # print(f)
+    # f.write('cloning started\n')
+    # time.sleep(1)
+    # f.write('cloning complete\n')
+    # p = proc()
+    # callback(p)
 
 
 def clone_repo():
@@ -95,22 +142,24 @@ def start_build():
     global jobs
     if jobs is not None:
         for job in jobs:
-            app.logger.info(f'Terminating {job}, {job.is_alive()}')
+            # app.logger.info(f'Terminating {job}, {job.is_alive()}')
             job.terminate()
     jobs = []
-    app.logger.info('Starting')
-    if os.path.isdir(f'./repo/{project}'):
-        shutil.rmtree(f'./repo/{project}')
+    # app.logger.info('Starting')
+    if os.path.isdir(local_repo):
+        shutil.rmtree(local_repo)
+    if os.path.isdir(local_repo):
+        raise Exception('Local repository not deleted')
     clone_repo()
-    app.logger.info(f'job2: {jobs}')
-    app.logger.info('Build Started')
+    # app.logger.info(f'job2: {jobs}')
+    # app.logger.info('Build Started')
     return jsonify({'status': 'ok'})
 
 
 @app.route('/ls')
 def ls():
     # f = open('./log.txt', 'w')
-    ls_output = subprocess.run(["ls"], capture_output=True)
+    ls_output = subprocess.run(["ls", 'repo'], capture_output=True)
     app.logger.info(ls_output.stdout.decode('utf-8'))
     # f.close()
     # if not os.path.isfile('./log.txt'):
