@@ -1,17 +1,52 @@
 Cloning into './repo/logdrain'...
 
 [1m[36m============ Checking Environment Variables ============(B[m
-./repo/logdrain1/start_env.sh: 57: [: =: unexpected operator
-./repo/logdrain1/start_env.sh: 64: [: =: unexpected operator
-./repo/logdrain1/start_env.sh: 70: [: =: unexpected operator
-./repo/logdrain1/start_env.sh: 76: [: =: unexpected operator
-./repo/logdrain1/start_env.sh: 84: [: =: unexpected operator
 
 [1m[36m================= Building container ===================(B[m
-invalid argument "logdrain-" for "-t, --tag" flag: invalid reference format
-See 'docker build --help'.
+docker build -t logdrain1-deploy_pipeline .
+error checking context: 'file ('/opt/app/repo/logdrain/.git/refs/tags') not found or excluded by .dockerignore'.
 
 [1m[36m================= Starting container ===================(B[m
-./repo/logdrain1/start_env.sh: 102: [: =: unexpected operator
-docker: invalid publish opts format (should be name=value but got '5000:').
-See 'docker run --help'.
+/Users/rob/Dropbox/Computers/Macbook_Pro_2018/Repositories/builder/repo/logdrain1/containers/dev/deploy_pipeline.sh
+
+[1m[36m=================== Run lint and local tests ===================(B[m
+
+[1m[36m============ Linting and Type Checking =============(B[m
+[1m[36mStarting Python linting (B[m
+[1m[32mOK(B[m
+
+[1m[36m===================== Testing ======================(B[m
+[1m[36mStarting Python Testing (B[m
+[1m============================= test session starts ==============================[0m
+platform linux -- Python 3.7.3, pytest-4.4.1, py-1.8.0, pluggy-0.13.0
+rootdir: /opt/app, inifile: pytest.ini
+[1mcollecting ... [0m[1mcollected 1 item                                                               [0m
+
+tests/local/test_endpoints.py [32m.[0m[36m                                          [100%][0m
+
+[32m[1m=========================== 1 passed in 0.07 seconds ===========================[0m
+[1m[32mOK(B[m
+
+[1m[32mOK(B[m
+
+[1m[36m=================== Deploy to test server ===================(B[m
+not_valid
+
+[1m[36m==== Checking (B[m[36mHEROKU_API_KEY[1m Exists locally =====(B[m 
+[1m[32mOK(B[m
+
+[1m[36m==== Checking (B[m[36mENTER_TEST_SERVER_ADDRESS_HERE[1m Exists on Heroku =====(B[m 
+ ▸    Invalid credentials
+ ▸    provided.
+ ›   Warning: heroku update available from 7.24.3 to 7.33.1.
+ ›   Error: Cannot log in with HEROKU_API_KEY set
+ ▸    Command failed: heroku
+ ▸    login
+[?25h
+[31mHeroku app [1mENTER_TEST_SERVER_ADDRESS_HERE(B[m[31m doesn't exist or is not associated with this account.
+
+[1m[31mBuild failed at[1m[36m Heroku App Check (B[m
+
+
+[1m[31mBuild failed(B[m
+

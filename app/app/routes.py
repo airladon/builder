@@ -70,11 +70,11 @@ def build_passed():
 #         --entrypoint "npm" \
 #         airladon/pynode:python3.7.4-node12.10.0-npm6.11.3-puppeteer1.20.0-chrome79.0.3921.0 \
 #         "run" "jest" "--" "--runInBand" $@
-        
+
 # Pipeline related methods
 def pipeline(f, callback):
     proc = subprocess.run(
-        [f'./repo/logdrain1/start_env.sh', 'dev-server'],
+        [f'./repo/logdrain1/start_env.sh deploy_pipeline'],
         stdout=f, stderr=f, shell=True)
     callback(proc)
 

@@ -124,7 +124,7 @@ else
     -v $PROJECT_PATH/.flake8:/opt/app/.flake8 \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --env-file=$PROJECT_PATH/containers/env.txt \
-    -e HOST_PATH=$PROJECT_PATH \
+    -e HOST_PATH=$PROJECT_PATH/repo/logdrain1 \
     --name logdrain-$1 \
     -p $HOST_PORT:$CONTAINER_PORT \
     logdrain-$1 $CMD
