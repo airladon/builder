@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Setup colors and text formatting
 red=`tput setaf 1`
 green=`tput setaf 2`
@@ -15,11 +17,11 @@ FAIL=0
 
 stop_dev_server() {
   SERVER_RUNNING=`docker ps --format {{.Names}} \
-                | grep logdrain-dev-server`
+                | grep builder-dev-server`
   if [ $SERVER_RUNNING ];
     then
     echo Dev server container is running - stopping...
-    docker stop logdrain-dev-server
+    docker stop builder-dev-server
   fi
 }
 
@@ -94,7 +96,7 @@ echo "${bold}${cyan}================= Building container ===================${re
 cp containers/$DOCKERFILE Dockerfile
 
 GUNICORN_PORT=4000
-docker build -t logdrain-$1 .
+docker build -t builder-$1 .
 rm Dockerfile
 
 echo
@@ -102,11 +104,11 @@ echo "${bold}${cyan}================= Starting container ===================${re
 if [ $1 = 'prod' ];
 then
   docker run -it --rm \
-    --name logdrain-$1 \
+    --name builder-$1 \
     -p $HOST_PORT:$CONTAINER_PORT \
     --env PORT=$CONTAINER_PORT \
     --env-file=$PROJECT_PATH/containers/env.txt \
-    logdrain-$1
+    builder-$1
 else
   # docker volume create browser-tests
   # docker run 
@@ -124,8 +126,8 @@ else
     -v $PROJECT_PATH/.flake8:/opt/app/.flake8 \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --env-file=$PROJECT_PATH/containers/env.txt \
-    -e HOST_PATH=$PROJECT_PATH/repo/logdrain1 \
-    --name logdrain-$1 \
+    -e HOST_PATH=$PROJECT_PATH/repo/clone \
+    --name builder-$1 \
     -p $HOST_PORT:$CONTAINER_PORT \
-    logdrain-$1 $CMD
+    builder-$1 $CMD
 fi

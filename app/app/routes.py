@@ -11,11 +11,11 @@ import time
 # import datetime
 # from werkzeug.urls import url_parse
 
-remote_repo = 'https://github.com/airladon/logdrain'
+remote_repo = 'https://github.com/airladon/thisiget'
 project = remote_repo.split('/')[-1]
 log_file = './repo/log.txt'
 log_handler = None
-local_repo = f'./repo/{project}'
+local_repo = f'./repo/clone'
 jobs = []
 
 
@@ -30,8 +30,8 @@ def build_passed():
 # Pipeline related methods
 def pipeline(f, callback):
     proc = subprocess.run(
-        [f'{local_repo}/start_env.sh deploy_pipeline'],
-        stdout=f, stderr=f, shell=True)
+        [f'./start_env.sh deploy_pipeline'],
+        stdout=f, stderr=f, shell=True, cwd=local_repo)
     callback(proc)
 
 
@@ -75,14 +75,16 @@ class proc:
 
 
 def clone(f, callback):
+    if os.path.isdir(local_repo):
+        shutil.rmtree(local_repo)
+    if os.path.isdir(local_repo):
+        raise Exception('Local repository not deleted')
     proc = subprocess.run(
-        ['git', 'clone', '--single-branch', '--branch', 'file-upload',
+        ['git', 'clone', '--single-branch', '--branch', 'build-integration',
          remote_repo, local_repo], stdout=f, stderr=f)
     callback(proc)
-    # print(f)
-    # f.write('cloning started\n')
-    # time.sleep(1)
-    # f.write('cloning complete\n')
+
+    # time.sleep(2)
     # p = proc()
     # callback(p)
 
@@ -115,10 +117,6 @@ def start_build():
         for job in jobs:
             job.terminate()
     jobs = []
-    if os.path.isdir(local_repo):
-        shutil.rmtree(local_repo)
-    if os.path.isdir(local_repo):
-        raise Exception('Local repository not deleted')
     clone_repo()
     return jsonify({'status': 'ok'})
 
