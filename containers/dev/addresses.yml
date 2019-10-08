@@ -1,0 +1,4 @@
+# dev: https://app_name.herokuapp.com
+dev: ENTER_DEV_SERVER_ADDRESS_HERE
+test: ENTER_TEST_SERVER_ADDRESS_HERE
+prod: ENTER_PROD_SERVER_ADDRESS_HERE
