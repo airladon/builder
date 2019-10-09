@@ -5,7 +5,7 @@
 
 
 
-FROM python:3.7.3-slim
+FROM airladon/pynode:python3.7.3-node12.1.0-npm6.9.0-docker-heroku
 
 WORKDIR /opt/app
 
@@ -23,8 +23,8 @@ ADD app/. app/.
 RUN mkdir repo
 # RUN rm -rf /opt/app/app/static/src
 
-RUN apt-get update && \
-	   apt-get -y install git
+# RUN apt-get update && \
+#	   apt-get -y install git
 
 
 RUN useradd -m myuser

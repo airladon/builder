@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, request
 # from flask import render_template, flash, redirect, url_for, jsonify, session
 # from flask import make_response, request
 from app import app
@@ -124,11 +124,17 @@ def ls():
     # ls_output = subprocess.run(["ls"], capture_output=True)
     # return jsonify({'status': ls_output.stdout.decode('utf-8')})
     # app.logger.info(ls_output.stdout.decode('utf-8'))
+    result = subprocess.run(['whereis', 'docker'], capture_output=True)
+    app.logger.info(f'{result.stdout}, {result.stderr}')
     f = open(log_file, 'r')
+    lines = f.readlines()
+    for line in lines:
+        app.logger.info(line.strip())
+    return jsonify({'status': lines})
 
-    return jsonify({'status': f.readlines()})
 
-
-# @app.route('/check', methods=['POST'])
-# def check():
-#     print(request.args)
+@app.route('/check', methods=['POST'])
+def check():
+    app.logger.info(request.data)
+    app.logger.info(request.headers)
+    return jsonify({'status': 'ok'})
