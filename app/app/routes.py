@@ -142,7 +142,9 @@ def check():
     app.logger.info('Values:')
     app.logger.info(request.values)
     app.logger.info('JSON:')
-    app.logger.info(request.json)
+    a = json.dumps(request.json, sort_keys=True,
+...                  indent=4, separators=(',', ': '))
+    app.logger.info(a)
     app.logger.info('Headers:')
     app.logger.info(request.headers)
     return jsonify({'status': 'ok'})
