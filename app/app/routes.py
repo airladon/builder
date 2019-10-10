@@ -159,7 +159,7 @@ def check():
         repository_name = data['repository']['name']
         repository_owner = data['repository']['owner']['login']
         sha = data['head']['sha']
-        app.logger(f'Pull Request on {repository_name} from repository {repository} from {from_branch} branch with sha {sha} to {to_branch} branch')
+        app.logger.info(f'Pull Request on {repository_name} from repository {repository} from {from_branch} branch with sha {sha} to {to_branch} branch')
         send_status('pending', repository_name, repository_owner, sha)
         time.sleep(10)
         send_status('success')
