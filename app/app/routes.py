@@ -142,7 +142,7 @@ def send_status(status, repository, owner, sha):
     response = requests.post(
         url=end_point,
         auth=(github_username, github_token),
-        data={
+        json={
             'state': status,
             'target_url': 'https://thisiget.com',
             'description': 'This is a description',
