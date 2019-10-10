@@ -105,12 +105,12 @@ if [ $1 = 'prod' ];
 then
   docker run -it --rm \
     --name builder-$1 \
-    -p $HOST_PORT:$CONTAINER_PORT \
     --net=isolated_nw \
     --env PORT=$CONTAINER_PORT \
     --env-file=$PROJECT_PATH/containers/env.txt \
     -d \
     builder-$1
+  # -p $HOST_PORT:$CONTAINER_PORT \
 else
   # docker volume create browser-tests
   # docker run 
