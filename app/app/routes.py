@@ -143,7 +143,8 @@ def check():
     app.logger.info('Values:')
     app.logger.info(request.values)
     app.logger.info('JSON:')
-    a = json.dumps(request.json, sort_keys=True, indent=4, separators=(',', ': '))
+    a = json.dumps(
+        request.json, sort_keys=True, indent=4, separators=(',', ': '))
     app.logger.info(a)
     app.logger.info('Headers:')
     app.logger.info(request.headers)
