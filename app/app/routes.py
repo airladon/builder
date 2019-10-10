@@ -19,6 +19,8 @@ log_file = './repo/log.txt'
 log_handler = None
 local_repo = f'./repo/clone'
 jobs = []
+github_token = os.environ.get('GITHUB_TOKEN')
+github_username = os.environ.get('GITHUB_USERNAME')
 
 
 def build_failed():
@@ -136,14 +138,15 @@ def ls():
 
 
 def send_status(status, repository, owner, sha):
-    end_point = f'https://github.com/repos/{owner}/{repository}/statuses/{sha}'
+    end_point = f'https://api.github.com/repos/{owner}/{repository}/statuses/{sha}'
     response = requests.post(
         url=end_point,
+        auth=(github_username, github_token),
         data={
             'state': status,
             'target_url': 'https://thisiget.com',
-            'description': 'test status state',
-            'context': 'build server test and deploy',
+            'description': 'This is a description',
+            'context': 'Test, Build and Deploy Server',
         })
     app.logger.info(response)
 
@@ -161,8 +164,8 @@ def check():
         sha = data['pull_request']['head']['sha']
         app.logger.info(f'Pull Request on {repository_name} from repository {repository} from {from_branch} branch with sha {sha} to {to_branch} branch')
         send_status('pending', repository_name, repository_owner, sha)
-        time.sleep(10)
-        send_status('success')
+        time.sleep(20)
+        send_status('success', repository_name, repository_owner, sha)
 
     else:
         app.logger.info('Form:')
