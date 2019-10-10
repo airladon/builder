@@ -152,7 +152,7 @@ def send_status(status, repository, owner, sha):
 def check():
     event = request.headers.get('X-Github-Event')
     if event == 'pull_request':
-        data = request.json
+        data = json.loads(request.json)
         to_branch = data['base']['ref']
         from_branch = data['head']['ref']
         repository = data['repository']['html_url']

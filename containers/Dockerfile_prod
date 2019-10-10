@@ -28,9 +28,9 @@ RUN mkdir logs
 #	   apt-get -y install git
 
 
-RUN useradd -m myuser
+RUN useradd -m myuser -u 1000 -o
 RUN chown myuser app
-RUN chown myuser logs
+RUN chown -R myuser logs
 RUN chown myuser repo
 RUN chown myuser app/app/app.db
 RUN chmod 666 app/app/app.db
