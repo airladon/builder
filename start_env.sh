@@ -106,6 +106,7 @@ then
   docker run -it --rm \
     --name builder-$1 \
     -p $HOST_PORT:$CONTAINER_PORT \
+    --net=isolated_nw \
     --env PORT=$CONTAINER_PORT \
     --env-file=$PROJECT_PATH/containers/env.txt \
     builder-$1
