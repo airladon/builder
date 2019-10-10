@@ -23,6 +23,68 @@ github_token = os.environ.get('GITHUB_TOKEN')
 github_username = os.environ.get('GITHUB_USERNAME')
 
 
+def send_status(status, repository, owner, sha):
+    end_point = \
+        f'https://api.github.com/repos/{owner}/{repository}/statuses/{sha}'
+    response = requests.post(
+        url=end_point,
+        auth=(github_username, github_token),
+        json={
+            'state': status,
+            'target_url': 'https://thisiget.com',
+            'description': 'This is a description',
+            'context': 'Test, Build and Deploy Server',
+        })
+    app.logger.info(response)
+
+
+class Commit:
+    def __init__(self, data):
+        self.url = data['repository']['html_url']
+        self.owner = data['repository']['owner']['login']
+        self.name = data['repository']['name']
+        self.local_repo = f'./repo/{self.name}'
+        self.sha = data['pull_request']['head']['sha']
+        self.from_branch = data['pull_request']['head']['ref']
+        self.to_branch = data['pull_request']['base']['ref']
+        self.pr_number = data['pull_request']['number']
+        if (os.isdir(f'./repo/{self.sha}')):
+            shutil.rmtree(f'./repo/{self.sha}')
+        self.log_file_name = f'./repo/{self.sha}/log.txt'
+        self.log_file_handler = None
+
+    def send_success(self):
+        send_status('success', self.name, self.owner, self.sha)
+
+    def send_pending(self):
+        send_status('pending', self.name, self.owner, self.sha)
+
+    def send_fail(self):
+        send_status('failure', self.name, self.owner, self.sha)
+
+    def send_error(self):
+        send_status('error', self.name, self.owner, self.sha)
+
+    # def clone(f, callback):
+    #     if os.path.isdir(local_repo):
+    #         shutil.rmtree(local_repo)
+    #     if os.path.isdir(local_repo):
+    #         raise Exception('Local repository not deleted')
+    #     proc = subprocess.run(
+    #         ['git', 'clone', '--single-branch', '--branch', 'build-integration',
+    #          remote_repo, local_repo], stdout=f, stderr=f)
+    #     callback(proc)
+
+    # def start(self):
+    #     self.log_file_handler = open(self.log_file_name, 'w')
+    #     job = multiprocessing.Process(
+    #         target=clone, args=())
+    #     clone_job.start()
+    #     global jobs
+    #     jobs.append(clone_job)
+    #     app.logger.info(f'job: {clone_job}')
+
+
 def build_failed():
     pass
 
@@ -137,18 +199,12 @@ def ls():
     return jsonify({'status': lines})
 
 
-def send_status(status, repository, owner, sha):
-    end_point = f'https://api.github.com/repos/{owner}/{repository}/statuses/{sha}'
-    response = requests.post(
-        url=end_point,
-        auth=(github_username, github_token),
-        json={
-            'state': status,
-            'target_url': 'https://thisiget.com',
-            'description': 'This is a description',
-            'context': 'Test, Build and Deploy Server',
-        })
-    app.logger.info(response)
+def build_test_deploy(
+    url, repo_owner, repo_name, sha,
+    from_branch='', to_branch='',
+):
+    send_status('pending', repo_name, repo_owner, sha)
+    clone_repo(url, sha)
 
 
 @app.route('/check', methods=['POST'])
@@ -157,15 +213,21 @@ def check():
     if event == 'pull_request':
         data = request.get_json()
         to_branch = data['pull_request']['base']['ref']
-        from_branch = data['pull_request']['head']['ref']
-        repository = data['repository']['html_url']
-        repository_name = data['repository']['name']
-        repository_owner = data['repository']['owner']['login']
-        sha = data['pull_request']['head']['sha']
-        app.logger.info(f'Pull Request on {repository_name} from repository {repository} from {from_branch} branch with sha {sha} to {to_branch} branch')
-        send_status('pending', repository_name, repository_owner, sha)
+        if to_branch != 'master':
+            return
+        commit = Commit()
+        commit.send_pending()
         time.sleep(20)
-        send_status('success', repository_name, repository_owner, sha)
+        commit.send_fail()
+        # from_branch = data['pull_request']['head']['ref']
+        # repository = data['repository']['html_url']
+        # repository_name = data['repository']['name']
+        # repository_owner = data['repository']['owner']['login']
+        # sha = data['pull_request']['head']['sha']
+        # # app.logger.info(f'Pull Request on {repository_name} from repository {repository} from {from_branch} branch with sha {sha} to {to_branch} branch')
+        # send_status('pending', repository_name, repository_owner, sha)
+        # time.sleep(20)
+        # send_status('success', repository_name, repository_owner, sha)
 
     else:
         app.logger.info('Form:')
