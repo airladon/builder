@@ -135,6 +135,14 @@ def ls():
 
 @app.route('/check', methods=['POST'])
 def check():
-    app.logger.info(request.data)
+    app.logger.info('Form:')
+    app.logger.info(request.form)
+    app.logger.info('Args:')
+    app.logger.info(request.args)
+    app.logger.info('Values:')
+    app.logger.info(request.values)
+    app.logger.info('JSON:')
+    app.logger.info(request.json)
+    app.logger.info('Headers:')
     app.logger.info(request.headers)
     return jsonify({'status': 'ok'})
