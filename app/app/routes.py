@@ -215,7 +215,7 @@ def check():
         to_branch = data['pull_request']['base']['ref']
         if to_branch != 'master':
             return
-        commit = Commit()
+        commit = Commit(data)
         commit.send_pending()
         time.sleep(20)
         commit.send_fail()
