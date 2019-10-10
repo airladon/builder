@@ -37,4 +37,4 @@ RUN chmod 666 app/app/app.db
 USER myuser
 
 
-CMD gunicorn --bind 0.0.0.0:$PORT --log-file=/opt/app/app/logs/gunicorn.txt --log-level debug --access-logfile /opt/app/app/logs/access_log.txt wsgi
+CMD gunicorn --bind 0.0.0.0:$PORT --log-file=/opt/app/logs/gunicorn.txt --log-level debug --access-logfile /opt/app/logs/access_log.txt wsgi

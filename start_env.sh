@@ -108,7 +108,7 @@ then
     --net=isolated_nw \
     --env PORT=$CONTAINER_PORT \
     --env-file=$PROJECT_PATH/containers/env.txt \
-    -v $PROJECT_PATH/logs:/opt/app/app/logs \
+    -v $PROJECT_PATH/logs:/opt/app/logs \
     builder-$1 bash
   # -p $HOST_PORT:$CONTAINER_PORT \
 elif [ $1 = 'prod' ];
@@ -118,7 +118,7 @@ elif [ $1 = 'prod' ];
     --net=isolated_nw \
     --env PORT=$CONTAINER_PORT \
     --env-file=$PROJECT_PATH/containers/env.txt \
-    -v $PROJECT_PATH/logs:/opt/app/app/logs \
+    -v $PROJECT_PATH/logs:/opt/app/logs \
     -d \
     builder-$1
 else
