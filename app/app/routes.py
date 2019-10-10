@@ -163,6 +163,7 @@ def check():
         send_status('pending', repository_name, repository_owner, sha)
         time.sleep(10)
         send_status('success')
+
     else:
         app.logger.info('Form:')
         app.logger.info(request.form)
