@@ -5,10 +5,11 @@ from app import app
 import subprocess
 import shutil
 import os
+import requests
 import json
 # from subprocess import PIPE, STDOUT
 import multiprocessing
-# import time
+import time
 # import datetime
 # from werkzeug.urls import url_parse
 
@@ -134,18 +135,45 @@ def ls():
     return jsonify({'status': lines})
 
 
+def send_status(status, repository, owner, sha):
+    end_point = f'https://github.com/repos/{owner}/{repository}/statuses/{sha}'
+    response = requests.post(
+        url=end_point,
+        data={
+            'state': status,
+            'target_url': 'https://thisiget.com',
+            'description': 'test status state',
+            'context': 'build server test and deploy',
+        })
+    app.logger.info(response)
+
+
 @app.route('/check', methods=['POST'])
 def check():
-    app.logger.info('Form:')
-    app.logger.info(request.form)
-    app.logger.info('Args:')
-    app.logger.info(request.args)
-    app.logger.info('Values:')
-    app.logger.info(request.values)
-    app.logger.info('JSON:')
-    a = json.dumps(
-        request.json, sort_keys=True, indent=4, separators=(',', ': '))
-    app.logger.info(a)
-    app.logger.info('Headers:')
-    app.logger.info(request.headers)
+    event = request.headers.get('X-Github-Event')
+    if event == 'pull_request':
+        data = json.loads(request.json)
+        to_branch = data['base']['ref']
+        from_branch = data['head']['ref']
+        repository = data['repository']['html_url']
+        repository_name = data['repository']['name']
+        repository_owner = data['repository']['owner']['login']
+        sha = data['head']['sha']
+        app.logger(f'Pull Request on {repository_name} from repository {repository} from {from_branch} branch with sha {sha} to {to_branch} branch')
+        send_status('pending', repository_name, repository_owner, sha)
+        time.sleep(10)
+        send_status('success')
+    else:
+        app.logger.info('Form:')
+        app.logger.info(request.form)
+        app.logger.info('Args:')
+        app.logger.info(request.args)
+        app.logger.info('Values:')
+        app.logger.info(request.values)
+        app.logger.info('JSON:')
+        a = json.dumps(
+            request.json, sort_keys=True, indent=4, separators=(',', ': '))
+        app.logger.info(a)
+        app.logger.info('Headers:')
+        app.logger.info(request.headers)
     return jsonify({'status': 'ok'})
