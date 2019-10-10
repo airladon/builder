@@ -21,6 +21,7 @@ ADD containers/prod/runtime.txt .
 ADD containers/prod/wsgi.py .
 ADD app/. app/.
 RUN mkdir repo
+RUN mkdir logs
 # RUN rm -rf /opt/app/app/static/src
 
 # RUN apt-get update && \
@@ -29,6 +30,8 @@ RUN mkdir repo
 
 RUN useradd -m myuser
 RUN chown myuser app
+RUN chown myuser logs
+RUN chown myuser repo
 RUN chown myuser app/app/app.db
 RUN chmod 666 app/app/app.db
 USER myuser
