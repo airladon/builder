@@ -109,6 +109,7 @@ then
     --net=isolated_nw \
     --env PORT=$CONTAINER_PORT \
     --env-file=$PROJECT_PATH/containers/env.txt \
+    -d \
     builder-$1
 else
   # docker volume create browser-tests
