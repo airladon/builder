@@ -101,7 +101,7 @@ rm Dockerfile
 
 echo
 echo "${bold}${cyan}================= Starting container ===================${reset}"
-if [ $1 = 'prod' ];
+if [[ $1 = 'prod' && $2 = 'debug' ]];
 then
   docker run -it --rm \
     --name builder-$1 \
@@ -112,6 +112,16 @@ then
     -d \
     builder-$1
   # -p $HOST_PORT:$CONTAINER_PORT \
+elif [ $1 = 'prod' ];
+  then
+    docker run -it --rm \
+    --name builder-$1 \
+    --net=isolated_nw \
+    --env PORT=$CONTAINER_PORT \
+    --env-file=$PROJECT_PATH/containers/env.txt \
+    -v $PROJECT_PATH/logs:/opt/app/app/logs \
+    -d \
+    builder-$1
 else
   # docker volume create browser-tests
   # docker run 
