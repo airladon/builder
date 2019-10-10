@@ -109,7 +109,6 @@ then
     --env PORT=$CONTAINER_PORT \
     --env-file=$PROJECT_PATH/containers/env.txt \
     -v $PROJECT_PATH/logs:/opt/app/app/logs \
-    -d \
     builder-$1
   # -p $HOST_PORT:$CONTAINER_PORT \
 elif [ $1 = 'prod' ];
