@@ -153,12 +153,12 @@ def check():
     event = request.headers.get('X-Github-Event')
     if event == 'pull_request':
         data = request.get_json()
-        to_branch = data['base']['ref']
-        from_branch = data['head']['ref']
+        to_branch = data['pull_request']['base']['ref']
+        from_branch = data['pull_request']['head']['ref']
         repository = data['repository']['html_url']
         repository_name = data['repository']['name']
         repository_owner = data['repository']['owner']['login']
-        sha = data['head']['sha']
+        sha = data['pull_request']['head']['sha']
         app.logger.info(f'Pull Request on {repository_name} from repository {repository} from {from_branch} branch with sha {sha} to {to_branch} branch')
         send_status('pending', repository_name, repository_owner, sha)
         time.sleep(10)
