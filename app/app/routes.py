@@ -32,7 +32,7 @@ def send_status(status, repository, owner, sha):
         auth=(github_username, github_token),
         json={
             'state': status,
-            'target_url': f'{host_url}/sha/{sha}',
+            'target_url': f'{host_url}/log/{sha}',
             'description': 'This is a description',
             'context': 'Test, Build and Deploy Server',
         })
