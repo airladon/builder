@@ -280,7 +280,8 @@ def check():
         data = request.get_json()
         to_branch = data['pull_request']['base']['ref']
         action = data['action']
-        if to_branch != 'master' or action == 'closed':
+        if (to_branch != 'master' and to_branch != 'build-integration') \
+                or action == 'closed':
             return jsonify({'status': 'no action'})
         # commit = Commit(data)
         # app.logger.info(data)
