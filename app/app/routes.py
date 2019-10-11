@@ -67,10 +67,16 @@ class Commit:
     def send_error(self):
         send_status('error', self.name, self.owner, self.sha)
 
+    def close_file(self):
+        if self.log_file_handler is not None:
+            self.log_file_handler.close()
+        self.log_file_handler = None
+
     def clone(self):
         if os.path.isdir(self.local_repo):
             shutil.rmtree(self.local_repo)
         if os.path.isdir(self.local_repo):
+            self.close_file()
             raise Exception('Local repository not deleted')
 
         app.logger.info(f'Clone {self.url} on branch {self.from_branch}')
@@ -82,17 +88,20 @@ class Commit:
             ], stdout=self.log_file_handler, stderr=self.log_file_handler)
         if result.returncode != 0:
             app.logger.error('Git clone failed')
+            self.log_file_handler.close()
             self.send_fail()
+            self.close_file()
             return
 
-        # app.logger.info(f'Checkout commit {self.sha}')
-        # result = subprocess.run(
-        #     ['git', 'checkout', self.sha],
-        #     stdout=self.log_file_handler, stderr=self.log_file_handler)
-        # if result.returncode != 0:
-        #     app.logger.error('Git checkout sha failed')
-        #     self.send_fail()
-        #     return
+        app.logger.info(f'Checkout commit {self.sha}')
+        result = subprocess.run(
+            ['git', 'checkout', self.sha],
+            stdout=self.log_file_handler, stderr=self.log_file_handler)
+        if result.returncode != 0:
+            app.logger.error('Git checkout sha failed')
+            self.send_fail()
+            self.close_file()
+            return
 
         # app.logger.info('Run deploy pipeline script')
         # result = subprocess.run(
@@ -103,7 +112,7 @@ class Commit:
         #     app.logger.error('Deploy Pipeline Failed')
         #     self.send_fail()
         #     return
-
+        self.log_file_handler.close()
         self.send_pass()
 
     def stopJobs(self):
@@ -119,6 +128,7 @@ class Commit:
         app.logger.info(
             f'Starting job for PR: {self.pr_number}, commit: {self.sha}\n')
         self.send_pending()
+        self.close_file()
         self.log_file_handler = open(self.log_file_name, 'w')
         self.log_file_handler.write(
             f'{self.url} PR: {self.pr_number}, sha: {self.sha}')
@@ -263,7 +273,7 @@ def check():
         to_branch = data['pull_request']['base']['ref']
         action = data['action']
         if to_branch != 'master' or action == 'closed':
-            return
+            return 200
         # commit = Commit(data)
         # app.logger.info(data)
         commit.initialize(data)
