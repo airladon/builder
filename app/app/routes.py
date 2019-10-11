@@ -6,18 +6,18 @@ import subprocess
 import shutil
 import os
 import requests
-import json
+# import json
 # from subprocess import PIPE, STDOUT
 import multiprocessing
-import time
+# import time
 # import datetime
 # from werkzeug.urls import url_parse
 
-remote_repo = 'https://github.com/airladon/thisiget'
-project = remote_repo.split('/')[-1]
-log_file = './repo/log.txt'
-log_handler = None
-local_repo = f'./repo/clone'
+# remote_repo = 'https://github.com/airladon/thisiget'
+# project = remote_repo.split('/')[-1]
+# log_file = './repo/log.txt'
+# log_handler = None
+# local_repo = f'./repo/clone'
 jobs = []
 github_token = os.environ.get('GITHUB_TOKEN') or ''
 github_username = os.environ.get('GITHUB_USERNAME') or ''
@@ -39,19 +39,8 @@ def send_status(status, repository, owner, sha):
     app.logger.info(response)
 
 
-# def clone(f, callback):
-#     if os.path.isdir(local_repo):
-#         shutil.rmtree(local_repo)
-#     if os.path.isdir(local_repo):
-#         raise Exception('Local repository not deleted')
-#     proc = subprocess.run(
-#         ['git', 'clone', '--single-branch', '--branch', 'build-integration',
-#          remote_repo, local_repo], stdout=f, stderr=f)
-#     callback(proc)
-
-
 class Commit:
-    def __init__(self, data):
+    def initialize(self, data):
         self.url = data['repository']['html_url']
         self.owner = data['repository']['owner']['login']
         self.name = data['repository']['name']
@@ -79,23 +68,56 @@ class Commit:
         send_status('error', self.name, self.owner, self.sha)
 
     def clone(self):
-        if os.path.isdir(local_repo):
-            shutil.rmtree(local_repo)
-        if os.path.isdir(local_repo):
+        if os.path.isdir(self.local_repo):
+            shutil.rmtree(self.local_repo)
+        if os.path.isdir(self.local_repo):
             raise Exception('Local repository not deleted')
-        proc = subprocess.run(
+
+        app.logger.info(f'Clone {self.url} on branch {self.from_branch}')
+        result = subprocess.run(
             [
                 'git', 'clone', '--single-branch',
                 '--branch', self.from_branch,
                 self.url, self.local_repo
             ], stdout=self.log_file_handler, stderr=self.log_file_handler)
-        self.send_fail()
-        app.logger.info(proc)
-        # callback(proc)
+        if result.returncode != 0:
+            app.logger.error('Git clone failed')
+            self.send_fail()
+            return
+
+        # app.logger.info(f'Checkout commit {self.sha}')
+        # result = subprocess.run(
+        #     ['git', 'checkout', self.sha],
+        #     stdout=self.log_file_handler, stderr=self.log_file_handler)
+        # if result.returncode != 0:
+        #     app.logger.error('Git checkout sha failed')
+        #     self.send_fail()
+        #     return
+
+        # app.logger.info('Run deploy pipeline script')
+        # result = subprocess.run(
+        #     [f'./start_env.sh deploy_pipeline'],
+        #     stdout=self.log_file_handler, stderr=self.log_file_handler,
+        #     shell=True, cwd=self.local_repo)
+        # if result.returncode != 0:
+        #     app.logger.error('Deploy Pipeline Failed')
+        #     self.send_fail()
+        #     return
+
+        self.send_pass()
+
+    def stopJobs(self):
+        global jobs
+        if jobs is not None:
+            for job in jobs:
+                app.logger.info(f'Terminating job {job}')
+                job.terminate()
+        jobs = []
 
     def start(self):
+        self.stopJobs()
         app.logger.info(
-            f'Starting job for PR: {self.pr_number}, commit: {self.sha}')
+            f'Starting job for PR: {self.pr_number}, commit: {self.sha}\n')
         self.send_pending()
         self.log_file_handler = open(self.log_file_name, 'w')
         self.log_file_handler.write(
@@ -111,57 +133,59 @@ class Commit:
         app.logger.info(f'job: {job}')
 
 
-def build_failed():
-    pass
+commit = Commit()
+
+# def build_failed():
+#     pass
 
 
-def build_passed():
-    pass
+# def build_passed():
+#     pass
 
 
-# Pipeline related methods
-def pipeline(f, callback):
-    proc = subprocess.run(
-        [f'./start_env.sh deploy_pipeline'],
-        stdout=f, stderr=f, shell=True, cwd=local_repo)
-    callback(proc)
+# # Pipeline related methods
+# def pipeline(f, callback):
+#     proc = subprocess.run(
+#         [f'./start_env.sh deploy_pipeline'],
+#         stdout=f, stderr=f, shell=True, cwd=local_repo)
+#     callback(proc)
 
 
-def pipeline_finished(process_completion):
-    if log_handler is not None:
-        log_handler.close()
-    if process_completion.returncode != 0:
-        app.logger.error('Deploy pipline failed')
-        build_failed()
-        return
-    app.logger.info('Pipeline finished successfully')
-    build_passed()
+# def pipeline_finished(process_completion):
+#     if log_handler is not None:
+#         log_handler.close()
+#     if process_completion.returncode != 0:
+#         app.logger.error('Deploy pipline failed')
+#         build_failed()
+#         return
+#     app.logger.info('Pipeline finished successfully')
+#     build_passed()
 
 
-def start_pipline():
-    log_handler = open(log_file, 'a')
-    clone_job = multiprocessing.Process(
-        target=pipeline, args=(log_handler, pipeline_finished))
-    clone_job.start()
-    global jobs
-    jobs.append(clone_job)
-    app.logger.info('starting pipline')
+# def start_pipline():
+#     log_handler = open(log_file, 'a')
+#     clone_job = multiprocessing.Process(
+#         target=pipeline, args=(log_handler, pipeline_finished))
+#     clone_job.start()
+#     global jobs
+#     jobs.append(clone_job)
+#     app.logger.info('starting pipline')
 
 
-# Clone repo related methods
-def repository_cloned(process_completion):
-    if log_handler is not None:
-        log_handler.close()
-    if process_completion.returncode != 0:
-        app.logger.error('Clone failed')
-        return
-    app.logger.info('Cloning complete')
-    start_pipline()
+# # Clone repo related methods
+# def repository_cloned(process_completion):
+#     if log_handler is not None:
+#         log_handler.close()
+#     if process_completion.returncode != 0:
+#         app.logger.error('Clone failed')
+#         return
+#     app.logger.info('Cloning complete')
+#     start_pipline()
 
 
-class proc:
-    def __init__(self):
-        self.returncode = 0
+# class proc:
+#     def __init__(self):
+#         self.returncode = 0
 
 
     # time.sleep(2)
@@ -169,14 +193,14 @@ class proc:
     # callback(p)
 
 
-def clone_repo():
-    log_handler = open(log_file, 'w')
-    clone_job = multiprocessing.Process(
-        target=clone, args=(log_handler, repository_cloned))
-    clone_job.start()
-    global jobs
-    jobs.append(clone_job)
-    app.logger.info(f'job: {clone_job}')
+# def clone_repo():
+#     log_handler = open(log_file, 'w')
+#     clone_job = multiprocessing.Process(
+#         target=clone, args=(log_handler, repository_cloned))
+#     clone_job.start()
+#     global jobs
+#     jobs.append(clone_job)
+#     app.logger.info(f'job: {clone_job}')
 
 
 @app.route('/')
@@ -185,42 +209,42 @@ def home():
     return jsonify({'status': 'ok'})
 
 
-@app.route('/build')
-def start_build():
-    # Clean existing repository
-    # Git clone
-    # ./start_env.sh deploy_pipeline.sh
-    # Check for error
-    # If running, cancel and restart
-    global jobs
-    if jobs is not None:
-        for job in jobs:
-            job.terminate()
-    jobs = []
-    clone_repo()
-    return jsonify({'status': 'ok'})
+# @app.route('/build')
+# def start_build():
+#     # Clean existing repository
+#     # Git clone
+#     # ./start_env.sh deploy_pipeline.sh
+#     # Check for error
+#     # If running, cancel and restart
+#     global jobs
+#     if jobs is not None:
+#         for job in jobs:
+#             job.terminate()
+#     jobs = []
+#     clone_repo()
+#     return jsonify({'status': 'ok'})
 
 
-@app.route('/ls')
-def ls():
-    # ls_output = subprocess.run(["ls"], capture_output=True)
-    # return jsonify({'status': ls_output.stdout.decode('utf-8')})
-    # app.logger.info(ls_output.stdout.decode('utf-8'))
-    result = subprocess.run(['whereis', 'docker'], capture_output=True)
-    app.logger.info(f'{result.stdout}, {result.stderr}')
-    f = open(log_file, 'r')
-    lines = f.readlines()
-    for line in lines:
-        app.logger.info(line.strip())
-    return jsonify({'status': lines})
+# @app.route('/ls')
+# def ls():
+#     # ls_output = subprocess.run(["ls"], capture_output=True)
+#     # return jsonify({'status': ls_output.stdout.decode('utf-8')})
+#     # app.logger.info(ls_output.stdout.decode('utf-8'))
+#     result = subprocess.run(['whereis', 'docker'], capture_output=True)
+#     app.logger.info(f'{result.stdout}, {result.stderr}')
+#     f = open(log_file, 'r')
+#     lines = f.readlines()
+#     for line in lines:
+#         app.logger.info(line.strip())
+#     return jsonify({'status': lines})
 
 
-def build_test_deploy(
-    url, repo_owner, repo_name, sha,
-    from_branch='', to_branch='',
-):
-    send_status('pending', repo_name, repo_owner, sha)
-    clone_repo(url, sha)
+# def build_test_deploy(
+#     url, repo_owner, repo_name, sha,
+#     from_branch='', to_branch='',
+# ):
+#     send_status('pending', repo_name, repo_owner, sha)
+#     clone_repo(url, sha)
 
 
 @app.route('/log/<sha>')
@@ -239,8 +263,9 @@ def check():
         to_branch = data['pull_request']['base']['ref']
         if to_branch != 'master':
             return
-        commit = Commit(data)
-        commit.start()
+        # commit = Commit(data)
+        app.logger.info(data)
+        commit.initialize()
         # commit.send_pending()
         # time.sleep(20)
         # commit.send_fail()
