@@ -261,11 +261,12 @@ def check():
     if event == 'pull_request':
         data = request.get_json()
         to_branch = data['pull_request']['base']['ref']
-        if to_branch != 'master':
+        action = data['action']
+        if to_branch != 'master' or action == 'closed':
             return
         # commit = Commit(data)
-        app.logger.info(data)
-        commit.initialize()
+        # app.logger.info(data)
+        commit.initialize(data)
         # commit.send_pending()
         # time.sleep(20)
         # commit.send_fail()
