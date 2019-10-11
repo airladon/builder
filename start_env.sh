@@ -115,9 +115,17 @@ HOST_USER_GROUP_ID=`id -g`
 HOST_USER_ID=`id -u`
 echo 3
 # cat DockerfileTemp | sed "s/HOST_USER_ID/${HOST_USER_ID}/" | sed "s/HOST_USER_GROUP_ID/${HOST_USER_GROUP_ID}/" | sed "s/DOCKER_GROUP_ID/${DOCKER_GROUP_ID}/" > Dockerfile
-sed "s/HOST_USER_ID/${HOST_USER_ID}/;s/HOST_USER_GROUP_ID/${HOST_USER_GROUP_ID}/;s/DOCKER_GROUP_ID/${DOCKER_GROUP_ID}/" < DockerfileTemp > Dockerfile
-rm DockerfileTemp
+echo $HOST_USER_GROUP_ID $HOST_USER_ID $HOST_USER_ID
+sed "s/HOST_USER_ID/${HOST_USER_ID}/" < DockerfileTemp > temp1 
 echo 4
+sed "s/HOST_USER_GROUP_ID/${HOST_USER_GROUP_ID}/" < temp1 > temp2
+echo 5
+sed "s/DOCKER_GROUP_ID/${DOCKER_GROUP_ID}/" < temp2 > Dockerfile
+echo 6
+rm DockerfileTemp
+rm temp1
+rm temp2
+
 
 GUNICORN_PORT=4000
 docker build -t builder-$1 .
