@@ -219,7 +219,7 @@ def build_test_deploy(
 def show_log(sha):
     if os.path.isdir(f'./logs/{sha}'):
         return make_response(send_file(
-            f'./logs/{sha}/log.txt', add_etags=False, cache_timeout=0))
+            f'opt/app/logs/{sha}/log.txt', add_etags=False, cache_timeout=0))
     return jsonify({'status': f'{sha} does not exist'})
 
 
