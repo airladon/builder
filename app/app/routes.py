@@ -113,10 +113,12 @@ class Commit:
             [f'./start_env.sh deploy_pipeline'],
             stdout=self.log_file_handler, stderr=self.log_file_handler,
             shell=True, cwd=self.local_repo)
+        app.logger.info(f'Return code: {result.returncode}')
         if result.returncode != 0:
             app.logger.error('Deploy Pipeline Failed')
             self.send_fail()
             return
+        app.logger.info(f'Should be sending success soon')
         self.log_file_handler.close()
         shutil.rmtree(self.local_repo)
         self.send_success()
