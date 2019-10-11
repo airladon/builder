@@ -114,9 +114,9 @@ class Commit:
 
         app.logger.info('Run deploy pipeline script')
         result = subprocess.run(
-            [f'start_env.sh', 'deploy_pipeline'],
+            ['start_env.sh deploy_pipeline'],
             stdout=self.log_file_handler, stderr=self.log_file_handler,
-            cwd=self.local_repo)
+            shell=True, cwd=self.local_repo)
         app.logger.info(f'Return code: {result.returncode}')
         if result.returncode != 0:
             app.logger.error('Deploy Pipeline Failed')
