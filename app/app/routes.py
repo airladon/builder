@@ -118,7 +118,7 @@ class Commit:
             self.send_fail()
             return
         self.log_file_handler.close()
-        self.send_pass()
+        self.send_success()
 
     def stopJobs(self):
         global jobs
