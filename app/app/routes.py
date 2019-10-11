@@ -39,6 +39,17 @@ def send_status(status, repository, owner, sha):
     app.logger.info(response)
 
 
+# def clone(f, callback):
+#     if os.path.isdir(local_repo):
+#         shutil.rmtree(local_repo)
+#     if os.path.isdir(local_repo):
+#         raise Exception('Local repository not deleted')
+#     proc = subprocess.run(
+#         ['git', 'clone', '--single-branch', '--branch', 'build-integration',
+#          remote_repo, local_repo], stdout=f, stderr=f)
+#     callback(proc)
+
+
 class Commit:
     def __init__(self, data):
         self.url = data['repository']['html_url']
@@ -67,30 +78,36 @@ class Commit:
     def send_error(self):
         send_status('error', self.name, self.owner, self.sha)
 
-    # def clone(f, callback):
-    #     if os.path.isdir(local_repo):
-    #         shutil.rmtree(local_repo)
-    #     if os.path.isdir(local_repo):
-    #         raise Exception('Local repository not deleted')
-    #     proc = subprocess.run(
-    #         ['git', 'clone', '--single-branch', '--branch', 'build-integration',
-    #          remote_repo, local_repo], stdout=f, stderr=f)
-    #     callback(proc)
+    def clone(self):
+        if os.path.isdir(local_repo):
+            shutil.rmtree(local_repo)
+        if os.path.isdir(local_repo):
+            raise Exception('Local repository not deleted')
+        proc = subprocess.run(
+            [
+                'git', 'clone', '--single-branch',
+                '--branch', self.from_branch,
+                self.url, self.local_repo
+            ], stdout=self.log_file_handler, stderr=self.log_file_handler)
+        self.send_fail()
+        app.logger.info(proc)
+        # callback(proc)
 
     def start(self):
         app.logger.info(
             f'Starting job for PR: {self.pr_number}, commit: {self.sha}')
         self.send_pending()
         self.log_file_handler = open(self.log_file_name, 'w')
-        self.log_file_handler.write(f'Start of log file for {self.sha}')
-        time.sleep(20)
-        self.send_fail()
-        # job = multiprocessing.Process(
-        #     target=clone, args=())
-        # clone_job.start()
-        # global jobs
-        # jobs.append(clone_job)
-        # app.logger.info(f'job: {clone_job}')
+        self.log_file_handler.write(
+            f'{self.url} PR: {self.pr_number}, sha: {self.sha}')
+        # time.sleep(20)
+        # self.send_fail()
+        job = multiprocessing.Process(
+            target=self.clone, args=(self))
+        job.start()
+        global jobs
+        jobs.append(job)
+        app.logger.info(f'job: {job}')
 
 
 def build_failed():
@@ -145,16 +162,6 @@ class proc:
     def __init__(self):
         self.returncode = 0
 
-
-def clone(f, callback):
-    if os.path.isdir(local_repo):
-        shutil.rmtree(local_repo)
-    if os.path.isdir(local_repo):
-        raise Exception('Local repository not deleted')
-    proc = subprocess.run(
-        ['git', 'clone', '--single-branch', '--branch', 'build-integration',
-         remote_repo, local_repo], stdout=f, stderr=f)
-    callback(proc)
 
     # time.sleep(2)
     # p = proc()
