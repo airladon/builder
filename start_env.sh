@@ -157,3 +157,5 @@ else
     -p $HOST_PORT:$CONTAINER_PORT \
     builder-$1 $CMD
 fi
+echo End of start_Env
+exit 0
