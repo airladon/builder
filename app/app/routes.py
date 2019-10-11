@@ -44,7 +44,7 @@ class Commit:
         self.url = data['repository']['html_url']
         self.owner = data['repository']['owner']['login']
         self.name = data['repository']['name']
-        self.local_repo = f'./repo/{self.name}'
+        self.local_repo = f'./repo/clone'
         self.sha = data['pull_request']['head']['sha']
         self.from_branch = data['pull_request']['head']['ref']
         self.to_branch = data['pull_request']['base']['ref']
