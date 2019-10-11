@@ -267,6 +267,7 @@ def check():
         # commit = Commit(data)
         # app.logger.info(data)
         commit.initialize(data)
+        commit.start()
         # commit.send_pending()
         # time.sleep(20)
         # commit.send_fail()
