@@ -115,7 +115,7 @@ HOST_USER_GROUP_ID=`id -g`
 HOST_USER_ID=`id -u`
 echo 3
 # cat DockerfileTemp | sed "s/HOST_USER_ID/${HOST_USER_ID}/" | sed "s/HOST_USER_GROUP_ID/${HOST_USER_GROUP_ID}/" | sed "s/DOCKER_GROUP_ID/${DOCKER_GROUP_ID}/" > Dockerfile
-echo $HOST_USER_GROUP_ID $HOST_USER_ID $HOST_USER_ID
+echo $HOST_USER_GROUP_ID $HOST_USER_ID $DOCKER_GROUP_ID
 sed "s/HOST_USER_ID/${HOST_USER_ID}/" < DockerfileTemp > temp1 
 echo 4
 sed "s/HOST_USER_GROUP_ID/${HOST_USER_GROUP_ID}/" < temp1 > temp2
