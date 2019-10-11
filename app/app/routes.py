@@ -32,7 +32,7 @@ def send_status(status, repository, owner, sha):
         auth=(github_username, github_token),
         json={
             'state': status,
-            'target_url': f'{host_url}/sha/log.txt',
+            'target_url': f'{host_url}/sha/{sha}',
             'description': 'This is a description',
             'context': 'Test, Build and Deploy Server',
         })
@@ -219,7 +219,7 @@ def build_test_deploy(
 def show_log(sha):
     if os.path.isdir(f'./repo/{sha}'):
         return make_response(send_file(
-            f'./repo/{sha}/log.txt', add_etags=False, cache_timeout=0))
+            f'./logs/{sha}/log.txt', add_etags=False, cache_timeout=0))
     return jsonify({'status': f'{sha} does not exist'})
 
 
