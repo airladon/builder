@@ -51,7 +51,7 @@ class Commit:
         self.pr_number = data['pull_request']['number']
         if (os.path.isdir(f'./repo/{self.sha}')):
             shutil.rmtree(f'./repo/{self.sha}')
-        self.log_file_name = f'./repo/{self.sha}/log.txt'
+        self.log_file_name = f'./logs/{self.sha}/log.txt'
         self.log_file_handler = None
 
     def send_success(self):
