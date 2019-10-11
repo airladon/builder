@@ -23,8 +23,8 @@ ADD app/. app/.
 RUN mkdir repo
 RUN mkdir logs
 
-RUN useradd -m myuser -u USER_ID -o
-RUN usermod -aG GROUP_ID myuser
+RUN useradd -m -u HOST_USER_ID -o myuser
+RUN usermod -aG DOCKER_GROUP_ID,HOST_USER_GROUP_ID myuser
 RUN chown myuser app
 RUN chown -R myuser logs
 RUN chown -R myuser repo
