@@ -77,6 +77,10 @@ class Commit:
         self.log_file_handler = None
 
     def clone(self):
+        self.log_file_handler = open(self.log_file_name, 'w')
+        self.log_file_handler.write(
+            f'{self.url} PR: {self.pr_number}, sha: {self.sha}\n')
+
         if os.path.isdir(self.local_repo):
             shutil.rmtree(self.local_repo)
         if os.path.isdir(self.local_repo):
@@ -134,12 +138,9 @@ class Commit:
     def start(self):
         self.stopJobs()
         app.logger.info(
-            f'Starting job for PR: {self.pr_number}, commit: {self.sha}\n')
+            f'Starting job for PR: {self.pr_number}, commit: {self.sha}')
         self.send_pending()
         self.close_file()
-        self.log_file_handler = open(self.log_file_name, 'w')
-        # self.log_file_handler.write(
-        #     f'{self.url} PR: {self.pr_number}, sha: {self.sha}')
         # time.sleep(20)
         # self.send_fail()
         job = multiprocessing.Process(target=self.clone)
