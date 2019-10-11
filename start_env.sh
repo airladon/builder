@@ -116,6 +116,7 @@ HOST_USER_ID=`id -u`
 echo 3
 cat DockerfileTemp | sed "s/HOST_USER_ID/${HOST_USER_ID}/" | sed "s/HOST_USER_GROUP_ID/${HOST_USER_GROUP_ID}/" | sed "s/DOCKER_GROUP_ID/${DOCKER_GROUP_ID}/" > Dockerfile
 rm DockerfileTemp
+echo 4
 
 GUNICORN_PORT=4000
 docker build -t builder-$1 .
