@@ -49,8 +49,9 @@ class Commit:
         self.from_branch = data['pull_request']['head']['ref']
         self.to_branch = data['pull_request']['base']['ref']
         self.pr_number = data['pull_request']['number']
-        if (os.path.isdir(f'./repo/{self.sha}')):
-            shutil.rmtree(f'./repo/{self.sha}')
+        if (os.path.isdir(f'./logs/{self.sha}')):
+            shutil.rmtree(f'./logs/{self.sha}')
+        os.mkdir(f'./logs/{self.sha}')
         self.log_file_name = f'./logs/{self.sha}/log.txt'
         self.log_file_handler = None
 
