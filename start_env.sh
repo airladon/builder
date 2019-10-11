@@ -151,7 +151,7 @@ elif [ $1 = 'prod' ];
     -v $PROJECT_PATH/repo:/opt/app/repo \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -e HOST_PATH=$PROJECT_PATH/repo/clone \
-    --restart $DOCKER_RESTART
+    --restart $DOCKER_RESTART \
     -d \
     builder-$1
 else
