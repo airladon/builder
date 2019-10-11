@@ -278,7 +278,7 @@ def check():
         to_branch = data['pull_request']['base']['ref']
         action = data['action']
         if to_branch != 'master' or action == 'closed':
-            return 200
+            return jsonify({'status': 'no action'})
         # commit = Commit(data)
         # app.logger.info(data)
         commit.initialize(data)
