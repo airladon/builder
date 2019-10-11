@@ -1,0 +1,1 @@
+docker stop nginx-server builder-prod
