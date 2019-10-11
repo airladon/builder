@@ -114,7 +114,7 @@ class Commit:
 
         app.logger.info('Run deploy pipeline script')
         result = subprocess.run(
-            ['start_env.sh deploy_pipeline'],
+            ['./start_env.sh deploy_pipeline'],
             stdout=self.log_file_handler, stderr=self.log_file_handler,
             shell=True, cwd=self.local_repo)
         app.logger.info(f'Return code: {result.returncode}')
