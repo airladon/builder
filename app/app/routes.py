@@ -1,6 +1,6 @@
 from flask import jsonify, request
 # from flask import render_template, flash, redirect, url_for, jsonify, session
-# from flask import make_response, request
+from flask import make_response, send_file
 from app import app
 import subprocess
 import shutil
@@ -19,8 +19,9 @@ log_file = './repo/log.txt'
 log_handler = None
 local_repo = f'./repo/clone'
 jobs = []
-github_token = os.environ.get('GITHUB_TOKEN')
-github_username = os.environ.get('GITHUB_USERNAME')
+github_token = os.environ.get('GITHUB_TOKEN') or ''
+github_username = os.environ.get('GITHUB_USERNAME') or ''
+host_url = os.environ.get('HOST_URL') or ''
 
 
 def send_status(status, repository, owner, sha):
@@ -31,7 +32,7 @@ def send_status(status, repository, owner, sha):
         auth=(github_username, github_token),
         json={
             'state': status,
-            'target_url': 'https://thisiget.com',
+            'target_url': f'{host_url}/sha/log.txt',
             'description': 'This is a description',
             'context': 'Test, Build and Deploy Server',
         })
@@ -75,14 +76,20 @@ class Commit:
     #          remote_repo, local_repo], stdout=f, stderr=f)
     #     callback(proc)
 
-    # def start(self):
-    #     self.log_file_handler = open(self.log_file_name, 'w')
-    #     job = multiprocessing.Process(
-    #         target=clone, args=())
-    #     clone_job.start()
-    #     global jobs
-    #     jobs.append(clone_job)
-    #     app.logger.info(f'job: {clone_job}')
+    def start(self):
+        app.logger.info(
+            f'Starting job for PR: {self.pr_number}, commit: {self.sha}')
+        self.send_pending()
+        self.log_file_handler = open(self.log_file_name, 'w')
+        self.log_file_handler.write(f'Start of log file for {self.sha}')
+        time.sleep(20)
+        self.send_fail()
+        # job = multiprocessing.Process(
+        #     target=clone, args=())
+        # clone_job.start()
+        # global jobs
+        # jobs.append(clone_job)
+        # app.logger.info(f'job: {clone_job}')
 
 
 def build_failed():
@@ -207,6 +214,14 @@ def build_test_deploy(
     clone_repo(url, sha)
 
 
+@app.route('/log/<sha>')
+def show_log(sha):
+    if os.path.isdir(f'./repo/{sha}'):
+        return make_response(send_file(
+            f'./repo/{sha}/log.txt', add_etags=False, cache_timeout=0))
+    return jsonify({'status': f'{sha} does not exist'})
+
+
 @app.route('/check', methods=['POST'])
 def check():
     event = request.headers.get('X-Github-Event')
@@ -216,30 +231,31 @@ def check():
         if to_branch != 'master':
             return
         commit = Commit(data)
-        commit.send_pending()
-        time.sleep(20)
-        commit.send_fail()
-        # from_branch = data['pull_request']['head']['ref']
-        # repository = data['repository']['html_url']
-        # repository_name = data['repository']['name']
-        # repository_owner = data['repository']['owner']['login']
-        # sha = data['pull_request']['head']['sha']
-        # # app.logger.info(f'Pull Request on {repository_name} from repository {repository} from {from_branch} branch with sha {sha} to {to_branch} branch')
-        # send_status('pending', repository_name, repository_owner, sha)
+        commit.start()
+        # commit.send_pending()
         # time.sleep(20)
-        # send_status('success', repository_name, repository_owner, sha)
+        # commit.send_fail()
+    #     # from_branch = data['pull_request']['head']['ref']
+    #     # repository = data['repository']['html_url']
+    #     # repository_name = data['repository']['name']
+    #     # repository_owner = data['repository']['owner']['login']
+    #     # sha = data['pull_request']['head']['sha']
+    #     # # app.logger.info(f'Pull Request on {repository_name} from repository {repository} from {from_branch} branch with sha {sha} to {to_branch} branch')
+    #     # send_status('pending', repository_name, repository_owner, sha)
+    #     # time.sleep(20)
+    #     # send_status('success', repository_name, repository_owner, sha)
 
-    else:
-        app.logger.info('Form:')
-        app.logger.info(request.form)
-        app.logger.info('Args:')
-        app.logger.info(request.args)
-        app.logger.info('Values:')
-        app.logger.info(request.values)
-        app.logger.info('JSON:')
-        a = json.dumps(
-            request.json, sort_keys=True, indent=4, separators=(',', ': '))
-        app.logger.info(a)
-        app.logger.info('Headers:')
-        app.logger.info(request.headers)
+    # else:
+    #     app.logger.info('Form:')
+    #     app.logger.info(request.form)
+    #     app.logger.info('Args:')
+    #     app.logger.info(request.args)
+    #     app.logger.info('Values:')
+    #     app.logger.info(request.values)
+    #     app.logger.info('JSON:')
+    #     a = json.dumps(
+    #         request.json, sort_keys=True, indent=4, separators=(',', ': '))
+    #     app.logger.info(a)
+    #     app.logger.info('Headers:')
+    #     app.logger.info(request.headers)
     return jsonify({'status': 'ok'})
