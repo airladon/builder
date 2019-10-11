@@ -111,17 +111,21 @@ then
 fi
 HOST_USER_GROUP_ID=`id -g`
 HOST_USER_ID=`id -u`
-# cat DockerfileTemp | sed "s/HOST_USER_ID/${HOST_USER_ID}/" | sed "s/HOST_USER_GROUP_ID/${HOST_USER_GROUP_ID}/" | sed "s/DOCKER_GROUP_ID/${DOCKER_GROUP_ID}/" > Dockerfile
+
 sed "s/HOST_USER_ID/${HOST_USER_ID}/;s/HOST_USER_GROUP_ID/${HOST_USER_GROUP_ID}/;s/DOCKER_GROUP_ID/${DOCKER_GROUP_ID}/" < DockerfileTemp > Dockerfile 
 rm DockerfileTemp
 
-
-GUNICORN_PORT=4000
 docker build -t builder-$1 .
 rm Dockerfile
 
 echo
 echo "${bold}${cyan}================= Starting container ===================${reset}"
+
+if [ -z "$DOCKER_RESTART" ];
+then
+  DOCKER_RESTART=unless-stopped
+fi
+
 if [[ $1 = 'prod' && $2 = 'debug' ]];
 then
   docker run -it --rm \
@@ -147,6 +151,7 @@ elif [ $1 = 'prod' ];
     -v $PROJECT_PATH/repo:/opt/app/repo \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -e HOST_PATH=$PROJECT_PATH/repo/clone \
+    --restart $DOCKER_RESTART
     -d \
     builder-$1
 else
