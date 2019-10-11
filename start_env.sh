@@ -123,7 +123,7 @@ echo "${bold}${cyan}================= Starting container ===================${re
 
 if [ -z "$DOCKER_RESTART" ];
 then
-  DOCKER_RESTART=unless-stopped
+  DOCKER_RESTART=no
 fi
 
 if [[ $1 = 'prod' && $2 = 'debug' ]];
