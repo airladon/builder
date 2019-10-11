@@ -1,0 +1,38 @@
+# Production environment that can be used directly on Heroku. 
+# Differences to stage include:
+#  - App files are copied into the container, no volume mounting
+#  - Gunicorn is run directly
+
+
+
+FROM airladon/pynode:python3.7.3-node12.1.0-npm6.9.0-docker-heroku
+
+WORKDIR /opt/app
+
+
+ADD requirements.txt .
+RUN pip install --no-cache-dir -q -r requirements.txt
+
+
+
+RUN mkdir app
+ADD containers/prod/Procfile .
+ADD containers/prod/runtime.txt .
+ADD containers/prod/wsgi.py .
+ADD app/. app/.
+RUN mkdir repo
+RUN mkdir logs
+
+RUN useradd -m -u HOST_USER_ID -o myuser
+RUN groupadd -g DOCKER_GROUP_ID -o host-docker
+RUN usermod -aG DOCKER_GROUP_ID,HOST_USER_GROUP_ID myuser
+RUN chown myuser app
+RUN chown -R myuser logs
+RUN chown -R myuser repo
+RUN chown myuser app/app/app.db
+RUN chmod 666 app/app/app.db
+
+USER myuser
+
+
+CMD gunicorn --bind 0.0.0.0:$PORT --log-file=/opt/app/logs/gunicorn.txt --log-level debug --access-logfile /opt/app/logs/access_log.txt wsgi

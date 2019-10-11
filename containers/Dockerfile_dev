@@ -1,0 +1,22 @@
+# Development environment for
+#   - Python Linting
+#   - Python Testing
+#   - Flask debugging
+
+FROM airladon/pynode:python3.7.3-node12.1.0-npm6.9.0-docker-heroku
+
+# ## General ##
+WORKDIR /opt/app
+
+# Install Python packages
+ADD requirements.txt .
+RUN pip install --no-cache-dir -q -r requirements.txt
+
+# Environment variable for flask
+ENV FLASK_APP app/my_app.py
+ENV FLASK_DEBUG 1
+
+# Use this is you want to load straight into flask
+# CMD ["flask", "run", "--host=0.0.0.0"]
+
+ENTRYPOINT ["bash"]
