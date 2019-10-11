@@ -93,7 +93,7 @@ fi
 
 if [ $1 = 'deploy_pipeline' ];
 then
-  HOST_PORT=5002
+  HOST_PORT=5024
   CONTAINER_PORT=5000
   CMD="/opt/app/deploy_pipeline.sh"
   DOCKERFILE="Dockerfile_dev"
@@ -118,10 +118,10 @@ then
     --env-file=$LOCAL_PROJECT_PATH/containers/env.txt \
     -v $PROJECT_PATH/logs:/opt/app/logs \
     -v $PROJECT_PATH/repo:/opt/app/repo \
-    -v /var/run/docker.sock:/var/run/docker.sock \
     -e HOST_PATH=$PROJECT_PATH/repo/clone \
     builder-$1 bash
   # -p $HOST_PORT:$CONTAINER_PORT \
+  # -v /var/run/docker.sock:/var/run/docker.sock \
 elif [ $1 = 'prod' ];
   then
     docker run -it --rm \

@@ -34,6 +34,7 @@ RUN chown -R myuser logs
 RUN chown myuser repo
 RUN chown myuser app/app/app.db
 RUN chmod 666 app/app/app.db
+RUN usermod -a -G docker myuser
 USER myuser
 
 

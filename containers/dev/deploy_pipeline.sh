@@ -41,7 +41,7 @@ title() {
 # npm package is blocking stdout.
 python -c 'import os,sys,fcntl; flags = fcntl.fcntl(sys.stdout, fcntl.F_GETFL); fcntl.fcntl(sys.stdout, fcntl.F_SETFL, flags&~os.O_NONBLOCK);'
 
-find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
+# find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
 
 pytest tests/local/test_local_endpoints.py
 
