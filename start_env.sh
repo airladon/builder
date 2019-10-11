@@ -142,7 +142,7 @@ then
 
 elif [ $1 = 'prod' ];
   then
-    docker run -it --rm \
+    docker run -it \
     --name builder-$1 \
     --net=isolated_nw \
     --env PORT=$CONTAINER_PORT \
