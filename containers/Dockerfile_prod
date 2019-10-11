@@ -22,19 +22,15 @@ ADD containers/prod/wsgi.py .
 ADD app/. app/.
 RUN mkdir repo
 RUN mkdir logs
-# RUN rm -rf /opt/app/app/static/src
 
-# RUN apt-get update && \
-#	   apt-get -y install git
-
-
-RUN useradd -m myuser -u 1000 -o
+RUN useradd -m myuser -u USER_ID -o
+RUN usermod -aG GROUP_ID myuser
 RUN chown myuser app
 RUN chown -R myuser logs
-RUN chown myuser repo
+RUN chown -R myuser repo
 RUN chown myuser app/app/app.db
 RUN chmod 666 app/app/app.db
-RUN usermod -a -G docker myuser
+
 USER myuser
 
 

@@ -101,7 +101,18 @@ fi
 
 echo
 echo "${bold}${cyan}================= Building container ===================${reset}"
-cp containers/$DOCKERFILE Dockerfile
+cp containers/$DOCKERFILE DockerfileTemp
+# set user id of new user in production container to the same user id of the 
+# user calling the container so permissions of files work out ok
+DOCKER_GROUP=`grep docker /etc/group`
+if [ -z $DOCKER_GROUP ];
+then
+  DOCKER_GROUP=`ls -n /var/run/docker.sock | sed "s/[^ ]* *[^ ]* *\([^ ]*\).*/\1/"`
+fi
+USER_ID=`id -u`
+
+cat DockerfileTemp | sed "s/USER_ID/${USER_ID}/" | sed "s/GROUP_ID/${DOCKER_GROUP}/" > Dockerfile
+rm DockerfileTemp
 
 GUNICORN_PORT=4000
 docker build -t builder-$1 .
