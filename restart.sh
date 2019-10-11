@@ -1,4 +1,4 @@
-./stop.sh
+./terminate.sh
 
 ./start_env.sh prod
 
