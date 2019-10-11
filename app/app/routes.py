@@ -110,9 +110,9 @@ class Commit:
 
         app.logger.info('Run deploy pipeline script')
         result = subprocess.run(
-            [f'./start_env.sh deploy_pipeline'],
+            [f'start_env.sh', 'deploy_pipeline'],
             stdout=self.log_file_handler, stderr=self.log_file_handler,
-            shell=True, cwd=self.local_repo)
+            cwd=self.local_repo)
         app.logger.info(f'Return code: {result.returncode}')
         if result.returncode != 0:
             app.logger.error('Deploy Pipeline Failed')
@@ -142,8 +142,7 @@ class Commit:
             f'{self.url} PR: {self.pr_number}, sha: {self.sha}')
         # time.sleep(20)
         # self.send_fail()
-        job = multiprocessing.Process(
-            target=self.clone)
+        job = multiprocessing.Process(target=self.clone)
         # target=self.clone, args=(self))
         job.start()
         global jobs
