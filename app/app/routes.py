@@ -103,7 +103,8 @@ class Commit:
         # time.sleep(20)
         # self.send_fail()
         job = multiprocessing.Process(
-            target=self.clone, args=(self))
+            target=self.clone)
+        # target=self.clone, args=(self))
         job.start()
         global jobs
         jobs.append(job)
