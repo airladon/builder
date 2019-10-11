@@ -56,15 +56,19 @@ class Commit:
         self.log_file_handler = None
 
     def send_success(self):
+        app.logger.info('Posting Success')
         send_status('success', self.name, self.owner, self.sha)
 
     def send_pending(self):
+        app.logger.info('Posting Pending')
         send_status('pending', self.name, self.owner, self.sha)
 
     def send_fail(self):
+        app.logger.info('Posting Failure')
         send_status('failure', self.name, self.owner, self.sha)
 
     def send_error(self):
+        app.logger.info('Posting Error')
         send_status('error', self.name, self.owner, self.sha)
 
     def close_file(self):
@@ -93,25 +97,26 @@ class Commit:
             self.close_file()
             return
 
-        app.logger.info(f'Checkout commit {self.sha}')
+        app.logger.info(f'Checkout sha {self.sha}')
         result = subprocess.run(
             ['git', 'checkout', self.sha],
-            stdout=self.log_file_handler, stderr=self.log_file_handler)
+            stdout=self.log_file_handler, stderr=self.log_file_handler,
+            cwd=self.local_repo)
         if result.returncode != 0:
             app.logger.error('Git checkout sha failed')
             self.send_fail()
             self.close_file()
             return
 
-        # app.logger.info('Run deploy pipeline script')
-        # result = subprocess.run(
-        #     [f'./start_env.sh deploy_pipeline'],
-        #     stdout=self.log_file_handler, stderr=self.log_file_handler,
-        #     shell=True, cwd=self.local_repo)
-        # if result.returncode != 0:
-        #     app.logger.error('Deploy Pipeline Failed')
-        #     self.send_fail()
-        #     return
+        app.logger.info('Run deploy pipeline script')
+        result = subprocess.run(
+            [f'./start_env.sh deploy_pipeline'],
+            stdout=self.log_file_handler, stderr=self.log_file_handler,
+            shell=True, cwd=self.local_repo)
+        if result.returncode != 0:
+            app.logger.error('Deploy Pipeline Failed')
+            self.send_fail()
+            return
         self.log_file_handler.close()
         self.send_pass()
 
