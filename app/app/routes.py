@@ -118,6 +118,7 @@ class Commit:
             self.send_fail()
             return
         self.log_file_handler.close()
+        shutil.rmtree(self.local_repo)
         self.send_success()
 
     def stopJobs(self):
