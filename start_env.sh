@@ -166,6 +166,7 @@ else
     -v $PROJECT_PATH/containers/dev/pytest.ini:/opt/app/pytest.ini \
     -v $PROJECT_PATH/tests:/opt/app/tests \
     -v $PROJECT_PATH/repo:/opt/app/repo \
+    -v $PROJECT_PATH/tools:/opt/app/tools \
     -v $PROJECT_PATH/app:/opt/app/app \
     -v $PROJECT_PATH/.flake8:/opt/app/.flake8 \
     -v /var/run/docker.sock:/var/run/docker.sock \
