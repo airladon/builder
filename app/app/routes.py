@@ -6,7 +6,7 @@ import subprocess
 import shutil
 import os
 import requests
-from copy_diff_snapshots import copy_diff_snapshots
+from app.copy_diff_snapshots import copy_diff_snapshots
 # import json
 # from subprocess import PIPE, STDOUT
 import multiprocessing
