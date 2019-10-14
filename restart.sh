@@ -2,14 +2,17 @@
 
 ./start_env.sh prod
 
-cp containers/Dockerfile_nginx Dockerfile
-docker build -t nginx-local .
-rm Dockerfile
-
-
-if [ -z "$DOCKER_RESTART" ];
+if [ "$1" != "builder" ];
 then
-  DOCKER_RESTART=no
-fi
+  cp containers/Dockerfile_nginx Dockerfile
+  docker build -t nginx-local .
+  rm Dockerfile
 
-docker run --restart $DOCKER_RESTART --name nginx-server -p 80:80 -d --net=isolated_nw nginx-local
+
+  if [ -z "$DOCKER_RESTART" ];
+  then
+    DOCKER_RESTART=no
+  fi
+
+  docker run --restart $DOCKER_RESTART --name nginx-server -p 80:80 -d --net=isolated_nw nginx-local
+fi

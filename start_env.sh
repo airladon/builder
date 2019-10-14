@@ -152,6 +152,7 @@ elif [ $1 = 'prod' ];
     -v $PROJECT_PATH/tools:/opt/app/tools \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -e HOST_PATH=$PROJECT_PATH/repo/clone \
+    -p $HOST_PORT:$CONTAINER_PORT \
     --restart $DOCKER_RESTART \
     -d \
     builder-$1
@@ -170,6 +171,10 @@ else
     -v $PROJECT_PATH/tools:/opt/app/tools \
     -v $PROJECT_PATH/app:/opt/app/app \
     -v $PROJECT_PATH/.flake8:/opt/app/.flake8 \
+    -v $PROJECT_PATH/terminate.sh:/opt/app/terminate.sh \
+    -v $PROJECT_PATH/start_env.sh:/opt/app/start_env.sh \
+    -v $PROJECT_PATH/restart.sh:/opt/app/restart.sh \
+    -v $PROJECT_PATH/logs:/opt/app/logs \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --env-file=$LOCAL_PROJECT_PATH/containers/env.txt \
     -e HOST_PATH=$PROJECT_PATH \

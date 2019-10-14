@@ -6,7 +6,7 @@ import subprocess
 import shutil
 import os
 import requests
-from datetime import datetime
+import datetime
 from app.copy_diff_snapshots import copy_diff_snapshots, status_page
 import json
 # from subprocess import PIPE, STDOUT
@@ -27,6 +27,8 @@ host_url = os.environ.get('HOST_URL') or ''
 
 
 def send_status(status, repository, owner, sha):
+    if owner == 'mock_do_not_send':
+        return
     end_point = \
         f'https://api.github.com/repos/{owner}/{repository}/statuses/{sha}'
     response = requests.post(
@@ -56,7 +58,8 @@ class Commit:
         os.mkdir(f'./logs/{self.sha}')
         self.log_file_name = f'./logs/{self.sha}/log.txt'
         self.log_file_handler = None
-        self.start = datetime.now()
+        self.start_time = datetime.datetime.now()
+        self.status = 'not_started'
 
     def send_success(self):
         self.update_status('success')
@@ -150,10 +153,13 @@ class Commit:
         jobs = []
 
     def start(self):
+        app.logger.info(datetime.datetime.now())
         self.stopJobs()
+        app.logger.info(datetime.datetime.now())
         app.logger.info(
             f'Starting job for PR: {self.pr_number}, commit: {self.sha}')
         self.send_pending()
+        app.logger.info(datetime.datetime.now())
         self.close_file()
         # time.sleep(20)
         # self.send_fail()
@@ -170,7 +176,7 @@ class Commit:
     # Start:
     # Status:
     # Run Time:
-    def status_file(self, status):
+    def update_status(self, status):
         self.status = status
         file = open(f'./logs/{self.sha}/status.txt', 'w')
         if file is None:
@@ -179,11 +185,12 @@ class Commit:
             'repository': self.url,
             'pr': self.pr_number,
             'commit': self.sha,
-            'start': self.start,
+            'start': str(self.start_time),
             'status': self.status,
-            'run_time': datetime.now() - self.start_time
+            'run_time': str(datetime.datetime.now() - self.start_time)
         }
         file.write(json.dumps(status, indent=4, sort_keys=True))
+        file.close()
         # file.write(f'PR: {self.pr_number}, commit: {self.sha}')
         # file.write(f'Time Running: {datetime.now() - self.start_time}')
         # if status == 'pending':
@@ -331,6 +338,7 @@ def check():
     event = request.headers.get('X-Github-Event')
     if event == 'pull_request':
         data = request.get_json()
+        app.logger.info(data)
         to_branch = data['pull_request']['base']['ref']
         action = data['action']
         if (to_branch != 'master' and to_branch != 'build-integration') \
