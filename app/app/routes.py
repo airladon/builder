@@ -6,8 +6,9 @@ import subprocess
 import shutil
 import os
 import requests
-from app.copy_diff_snapshots import copy_diff_snapshots
-# import json
+from datetime import datetime
+from app.copy_diff_snapshots import copy_diff_snapshots, status_page
+import json
 # from subprocess import PIPE, STDOUT
 import multiprocessing
 # import time
@@ -55,21 +56,30 @@ class Commit:
         os.mkdir(f'./logs/{self.sha}')
         self.log_file_name = f'./logs/{self.sha}/log.txt'
         self.log_file_handler = None
+        self.start = datetime.now()
 
     def send_success(self):
+        self.update_status('success')
         app.logger.info('Posting Success')
         send_status('success', self.name, self.owner, self.sha)
 
+    def update_progress(self):
+        if self.status == 'pending':
+            self.update_status('pending')
+
     def send_pending(self):
+        self.update_status('pending')
         app.logger.info('Posting Pending')
         send_status('pending', self.name, self.owner, self.sha)
 
     def send_fail(self):
+        self.update_status('failure')
         app.logger.info('Posting Failure')
         send_status('failure', self.name, self.owner, self.sha)
 
     def send_error(self):
         app.logger.info('Posting Error')
+        self.update_status('error')
         send_status('error', self.name, self.owner, self.sha)
 
     def close_file(self):
@@ -130,6 +140,8 @@ class Commit:
         self.send_success()
 
     def stopJobs(self):
+        if self.status == 'pending':
+            self.update_status('cancelled')
         global jobs
         if jobs is not None:
             for job in jobs:
@@ -151,6 +163,39 @@ class Commit:
         global jobs
         jobs.append(job)
         app.logger.info(f'job: {job}')
+
+    # Repository:
+    # PR:
+    # Commit:
+    # Start:
+    # Status:
+    # Run Time:
+    def status_file(self, status):
+        self.status = status
+        file = open(f'./logs/{self.sha}/status.txt', 'w')
+        if file is None:
+            return
+        status = {
+            'repository': self.url,
+            'pr': self.pr_number,
+            'commit': self.sha,
+            'start': self.start,
+            'status': self.status,
+            'run_time': datetime.now() - self.start_time
+        }
+        file.write(json.dumps(status, indent=4, sort_keys=True))
+        # file.write(f'PR: {self.pr_number}, commit: {self.sha}')
+        # file.write(f'Time Running: {datetime.now() - self.start_time}')
+        # if status == 'pending':
+        #     file.write(
+        #         f'Status: Running for {datetime.now() - self.start_time}')
+        # elif status == 'success':
+        #     file.write(
+        #         f'Success. Run Time: {datetime.now() - self.start_time}')
+        # elif status == 'failure':
+        #     file.write(f'Fail. Run Time: {datetime.now() - self.start_time}')
+        # elif status == 'error':
+        #     file.write(f'Error. Run Time: {datetime.now() - self.start_time}')
 
 
 commit = Commit()
@@ -265,6 +310,14 @@ def restart():
     commit.start()
 
 
+@app.route('/status')
+def status():
+    return status_page()
+    # Get all status files
+    # Sort by time
+    # Show
+
+
 @app.route('/log/<sha>')
 def show_log(sha):
     if os.path.isdir(f'./logs/{sha}'):
@@ -283,34 +336,6 @@ def check():
         if (to_branch != 'master' and to_branch != 'build-integration') \
                 or action == 'closed':
             return jsonify({'status': 'no action'})
-        # commit = Commit(data)
-        # app.logger.info(data)
         commit.initialize(data)
         commit.start()
-        # commit.send_pending()
-        # time.sleep(20)
-        # commit.send_fail()
-    #     # from_branch = data['pull_request']['head']['ref']
-    #     # repository = data['repository']['html_url']
-    #     # repository_name = data['repository']['name']
-    #     # repository_owner = data['repository']['owner']['login']
-    #     # sha = data['pull_request']['head']['sha']
-    #     # # app.logger.info(f'Pull Request on {repository_name} from repository {repository} from {from_branch} branch with sha {sha} to {to_branch} branch')
-    #     # send_status('pending', repository_name, repository_owner, sha)
-    #     # time.sleep(20)
-    #     # send_status('success', repository_name, repository_owner, sha)
-
-    # else:
-    #     app.logger.info('Form:')
-    #     app.logger.info(request.form)
-    #     app.logger.info('Args:')
-    #     app.logger.info(request.args)
-    #     app.logger.info('Values:')
-    #     app.logger.info(request.values)
-    #     app.logger.info('JSON:')
-    #     a = json.dumps(
-    #         request.json, sort_keys=True, indent=4, separators=(',', ': '))
-    #     app.logger.info(a)
-    #     app.logger.info('Headers:')
-    #     app.logger.info(request.headers)
     return jsonify({'status': 'ok'})

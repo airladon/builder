@@ -140,7 +140,6 @@ then
     -e HOST_PATH=$PROJECT_PATH/repo/clone \
     builder-$1 bash
   # -p $HOST_PORT:$CONTAINER_PORT \
-
 elif [ $1 = 'prod' ];
   then
     docker run -it \
