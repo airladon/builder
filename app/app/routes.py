@@ -6,6 +6,7 @@ import subprocess
 import shutil
 import os
 import requests
+from copy_diff_snapshots import copy_diff_snapshots
 # import json
 # from subprocess import PIPE, STDOUT
 import multiprocessing
@@ -120,6 +121,7 @@ class Commit:
         app.logger.info(f'Return code: {result.returncode}')
         if result.returncode != 0:
             app.logger.error('Deploy Pipeline Failed')
+            copy_diff_snapshots(f'./logs/{self.sha}/diff')
             self.send_fail()
             return
         app.logger.info(f'Should be sending success soon')
