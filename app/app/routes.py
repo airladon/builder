@@ -205,12 +205,6 @@ commit = Commit()
 #     def __init__(self):
 #         self.returncode = 0
 
-
-    # time.sleep(2)
-    # p = proc()
-    # callback(p)
-
-
 # def clone_repo():
 #     log_handler = open(log_file, 'w')
 #     clone_job = multiprocessing.Process(
@@ -263,6 +257,10 @@ def home():
 # ):
 #     send_status('pending', repo_name, repo_owner, sha)
 #     clone_repo(url, sha)
+
+@app.route('/restart')
+def restart():
+    commit.start()
 
 
 @app.route('/log/<sha>')
