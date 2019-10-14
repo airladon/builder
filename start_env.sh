@@ -135,6 +135,7 @@ then
     --env-file=$LOCAL_PROJECT_PATH/containers/env.txt \
     -v $PROJECT_PATH/logs:/opt/app/logs \
     -v $PROJECT_PATH/repo:/opt/app/repo \
+    -v $PROJECT_PATH/tools:/opt/app/tools \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -e HOST_PATH=$PROJECT_PATH/repo/clone \
     builder-$1 bash
@@ -149,6 +150,7 @@ elif [ $1 = 'prod' ];
     --env-file=$LOCAL_PROJECT_PATH/containers/env.txt \
     -v $PROJECT_PATH/logs:/opt/app/logs \
     -v $PROJECT_PATH/repo:/opt/app/repo \
+    -v $PROJECT_PATH/tools:/opt/app/tools \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -e HOST_PATH=$PROJECT_PATH/repo/clone \
     --restart $DOCKER_RESTART \
