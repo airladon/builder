@@ -43,6 +43,7 @@ python -c 'import os,sys,fcntl; flags = fcntl.fcntl(sys.stdout, fcntl.F_GETFL); 
 
 # find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
 
+
 pytest tests/local/test_local_endpoints.py
 
 # ###########################################################################
