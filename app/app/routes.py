@@ -61,7 +61,7 @@ def get_status(sha):
 
 class Commit:
     def __init__(self):
-        self.status = 'not_started'
+        self.sha = None
 
     def initialize(self, data):
         self.url = data['repository']['html_url']
@@ -78,7 +78,6 @@ class Commit:
         self.log_file_name = f'./logs/{self.sha}/log.txt'
         self.log_file_handler = None
         self.start_time = datetime.datetime.now()
-        self.status = 'not_started'
 
     def get_status(self):
         if self.sha is not None:
@@ -91,7 +90,6 @@ class Commit:
         send_status('success', self.name, self.owner, self.sha)
 
     def update_progress(self):
-        app.logger.info(f'Current status: {self.status}')
         if self.get_status() == 'pending':
             self.update_status('pending')
 
@@ -162,7 +160,6 @@ class Commit:
             copy_diff_snapshots(f'./logs/{self.sha}/diff')
             self.send_fail()
             return
-        app.logger.info(f'Should be sending success soon')
         self.log_file_handler.close()
         shutil.rmtree(self.local_repo)
         self.send_success()
@@ -193,8 +190,6 @@ class Commit:
         app.logger.info(f'Job started: {job}')
 
     def update_status(self, status):
-        self.status = status
-        app.logger.info(self.status)
         file = open(f'./logs/{self.sha}/status.txt', 'w')
         if file is None:
             return
@@ -203,7 +198,7 @@ class Commit:
             'pr': self.pr_number,
             'commit': self.sha,
             'start': re.sub(r'\..*', '', str(self.start_time)),
-            'status': self.status,
+            'status': status,
             'run_time': re.sub(r'\..*', '', str(datetime.datetime.now() - self.start_time)),
             'from_branch': self.from_branch,
             'to_branch': self.to_branch,
