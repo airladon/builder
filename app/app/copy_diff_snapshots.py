@@ -116,7 +116,7 @@ def status_page():
                 status_file.close()
 
     zipped_pairs = zip(dates, files)
-    files = [x for _, x in sorted(zipped_pairs)]
+    files = [x for _, x in sorted(zipped_pairs, reverse=True)]
 
     out_str = header
     for f in files:
