@@ -170,6 +170,7 @@ class Commit:
 
     def update_status(self, status):
         self.status = status
+        app.logger.info(self.status)
         file = open(f'./logs/{self.sha}/status.txt', 'w')
         if file is None:
             return
@@ -179,7 +180,12 @@ class Commit:
             'commit': self.sha,
             'start': re.sub(r'\..*', '', str(self.start_time)),
             'status': self.status,
-            'run_time': re.sub(r'\..*', '', str(datetime.datetime.now() - self.start_time))
+            'run_time': re.sub(r'\..*', '', str(datetime.datetime.now() - self.start_time)),
+            'from_branch': self.from_branch,
+            'to_branch': self.to_branch,
+            'owner': self.owner,
+            'url': self.html_url,
+            'name': self.name,
         }
         file.write(json.dumps(status, indent=4, sort_keys=True))
         file.close()
@@ -194,8 +200,37 @@ def home():
     return jsonify({'status': 'ok'})
 
 
-@app.route('/restart')
-def restart():
+@app.route('/restart/<sha>')
+def restart(sha):
+    if not os.path.isdir(f'./logs/{sha}'):
+        return jsonify({'status': f'{sha} does not exist'})
+    status_file = open(f'./logs/{sha}/status.txt', 'r')
+    if status_file is None:
+        return jsonify({'status': f'{sha} status file cannot be opened'})
+
+    status = json.loads(status_file.read())
+    data = {
+        'action': 'review',
+        'repository': {
+            'html_url': status['url'],
+            'owner': {
+                'login': status['owner'],
+            },
+            'name': status['name'],
+        },
+        'pull_request': {
+            'head': {
+                'sha': status['commit'],
+                'ref': status['from_branch'],
+            },
+            'base': {
+                'ref': status['to_branch'],
+            },
+            'number': status['pr'],
+        },
+    }
+    status_file.close()
+    commit.initialize(data)
     commit.start()
 
 

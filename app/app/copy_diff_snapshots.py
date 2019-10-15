@@ -23,6 +23,9 @@ def copy_diff_snapshots(copy_path):
 
     for f in files:
         file_name = re.sub('^./', '', f)
+        file_name = re.sub('repo/clone', '', file_name)
+        file_name = re.sub(
+            '__image_snapshots__/__diff_output__/', '', file_name)
         file_name = re.sub('/', '--', file_name)
         copyfile(f, f'{copy_path}/{file_name}')
 
