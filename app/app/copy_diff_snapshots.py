@@ -76,6 +76,12 @@ def create_row(status):
                 <a href="/diff/{status['commit']}/{diff}">{diff}</a>
             </div>'''
 
+    if status['status'] != 'success':
+        out_str = f'''{out_str}
+            <div class=restart>
+                <a href="/restart/{status['commit']}">Restart</a>
+            </div>
+        '''
     out_str = f'{out_str}</div>'
     return out_str
 

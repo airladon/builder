@@ -75,6 +75,12 @@ table {
   margin-bottom: 1em;
 }
 
+.restart {
+  margin-top: 1em;
+  float: right;
+  font-size: 0.9em;
+}
+
 @media screen and (max-width: 600px) {
   .key {
     display: block;

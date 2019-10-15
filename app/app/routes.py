@@ -45,6 +45,9 @@ def send_status(status, repository, owner, sha):
 
 
 class Commit:
+    def __init__(self):
+        self.status = 'not_started'
+
     def initialize(self, data):
         self.url = data['repository']['html_url']
         self.owner = data['repository']['owner']['login']
