@@ -44,6 +44,21 @@ def send_status(status, repository, owner, sha):
     app.logger.info(response)
 
 
+def get_status(sha):
+    if sha is None:
+        return 'not_started'
+    if not os.path.isdir(f'./logs/{sha}'):
+        return 'not_started'
+    if not os.path.isfile(f'./logs/{sha}/status.txt'):
+        return 'not_started'
+    status_file = open(f'./logs/{sha}/status.txt')
+    status = json.loads(status_file.read())
+    if status['status'] is None:
+        return 'not_started'
+    status_file.close()
+    return status['status']
+
+
 class Commit:
     def __init__(self):
         self.status = 'not_started'
@@ -65,6 +80,9 @@ class Commit:
         self.start_time = datetime.datetime.now()
         self.status = 'not_started'
 
+    def get_status(self):
+        return get_status(self.sha)
+
     def send_success(self):
         self.update_status('success')
         app.logger.info('Posting Success')
@@ -72,7 +90,7 @@ class Commit:
 
     def update_progress(self):
         app.logger.info(f'Current status: {self.status}')
-        if self.status == 'pending':
+        if self.get_status() == 'pending':
             self.update_status('pending')
 
     def send_pending(self):
@@ -148,7 +166,7 @@ class Commit:
         self.send_success()
 
     def stopJobs(self):
-        if self.status == 'pending':
+        if self.get_status() == 'pending':
             self.update_status('cancelled')
         global jobs
         if jobs is not None:
