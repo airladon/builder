@@ -1,6 +1,5 @@
 import requests
 import sys
-import json
 
 payload = {
     'action': 'review',
@@ -13,7 +12,7 @@ payload = {
     },
     'pull_request': {
         'head': {
-            'sha': '70e68ffaea80bcb1b3e3ccb56a191d406b40299d',
+            'sha': '8c02e9ce139914e8255f91bd19bacd469cce67ad',
             'ref': 'temp',
         },
         'base': {

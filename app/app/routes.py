@@ -11,6 +11,7 @@ from app.copy_diff_snapshots import copy_diff_snapshots, status_page
 import json
 # from subprocess import PIPE, STDOUT
 import multiprocessing
+import re
 # import time
 # import datetime
 # from werkzeug.urls import url_parse
@@ -170,12 +171,6 @@ class Commit:
         jobs.append(job)
         app.logger.info(f'job: {job}')
 
-    # Repository:
-    # PR:
-    # Commit:
-    # Start:
-    # Status:
-    # Run Time:
     def update_status(self, status):
         self.status = status
         file = open(f'./logs/{self.sha}/status.txt', 'w')
@@ -185,88 +180,15 @@ class Commit:
             'repository': self.url,
             'pr': self.pr_number,
             'commit': self.sha,
-            'start': str(self.start_time),
+            'start': re.sub(r'\..*', '', str(self.start_time)),
             'status': self.status,
-            'run_time': str(datetime.datetime.now() - self.start_time)
+            'run_time': re.sub(r'\..*', '', str(datetime.datetime.now() - self.start_time))
         }
         file.write(json.dumps(status, indent=4, sort_keys=True))
         file.close()
-        # file.write(f'PR: {self.pr_number}, commit: {self.sha}')
-        # file.write(f'Time Running: {datetime.now() - self.start_time}')
-        # if status == 'pending':
-        #     file.write(
-        #         f'Status: Running for {datetime.now() - self.start_time}')
-        # elif status == 'success':
-        #     file.write(
-        #         f'Success. Run Time: {datetime.now() - self.start_time}')
-        # elif status == 'failure':
-        #     file.write(f'Fail. Run Time: {datetime.now() - self.start_time}')
-        # elif status == 'error':
-        #     file.write(f'Error. Run Time: {datetime.now() - self.start_time}')
 
 
 commit = Commit()
-
-# def build_failed():
-#     pass
-
-
-# def build_passed():
-#     pass
-
-
-# # Pipeline related methods
-# def pipeline(f, callback):
-#     proc = subprocess.run(
-#         [f'./start_env.sh deploy_pipeline'],
-#         stdout=f, stderr=f, shell=True, cwd=local_repo)
-#     callback(proc)
-
-
-# def pipeline_finished(process_completion):
-#     if log_handler is not None:
-#         log_handler.close()
-#     if process_completion.returncode != 0:
-#         app.logger.error('Deploy pipline failed')
-#         build_failed()
-#         return
-#     app.logger.info('Pipeline finished successfully')
-#     build_passed()
-
-
-# def start_pipline():
-#     log_handler = open(log_file, 'a')
-#     clone_job = multiprocessing.Process(
-#         target=pipeline, args=(log_handler, pipeline_finished))
-#     clone_job.start()
-#     global jobs
-#     jobs.append(clone_job)
-#     app.logger.info('starting pipline')
-
-
-# # Clone repo related methods
-# def repository_cloned(process_completion):
-#     if log_handler is not None:
-#         log_handler.close()
-#     if process_completion.returncode != 0:
-#         app.logger.error('Clone failed')
-#         return
-#     app.logger.info('Cloning complete')
-#     start_pipline()
-
-
-# class proc:
-#     def __init__(self):
-#         self.returncode = 0
-
-# def clone_repo():
-#     log_handler = open(log_file, 'w')
-#     clone_job = multiprocessing.Process(
-#         target=clone, args=(log_handler, repository_cloned))
-#     clone_job.start()
-#     global jobs
-#     jobs.append(clone_job)
-#     app.logger.info(f'job: {clone_job}')
 
 
 @app.route('/')
@@ -274,43 +196,6 @@ def home():
     app.logger.info('hello')
     return jsonify({'status': 'ok'})
 
-
-# @app.route('/build')
-# def start_build():
-#     # Clean existing repository
-#     # Git clone
-#     # ./start_env.sh deploy_pipeline.sh
-#     # Check for error
-#     # If running, cancel and restart
-#     global jobs
-#     if jobs is not None:
-#         for job in jobs:
-#             job.terminate()
-#     jobs = []
-#     clone_repo()
-#     return jsonify({'status': 'ok'})
-
-
-# @app.route('/ls')
-# def ls():
-#     # ls_output = subprocess.run(["ls"], capture_output=True)
-#     # return jsonify({'status': ls_output.stdout.decode('utf-8')})
-#     # app.logger.info(ls_output.stdout.decode('utf-8'))
-#     result = subprocess.run(['whereis', 'docker'], capture_output=True)
-#     app.logger.info(f'{result.stdout}, {result.stderr}')
-#     f = open(log_file, 'r')
-#     lines = f.readlines()
-#     for line in lines:
-#         app.logger.info(line.strip())
-#     return jsonify({'status': lines})
-
-
-# def build_test_deploy(
-#     url, repo_owner, repo_name, sha,
-#     from_branch='', to_branch='',
-# ):
-#     send_status('pending', repo_name, repo_owner, sha)
-#     clone_repo(url, sha)
 
 @app.route('/restart')
 def restart():
@@ -331,6 +216,16 @@ def show_log(sha):
         return make_response(send_file(
             f'/opt/app/logs/{sha}/log.txt', add_etags=False, cache_timeout=0))
     return jsonify({'status': f'{sha} does not exist'})
+
+
+@app.route('/diff/<sha>/<name>')
+def show_file(sha, name):
+    if not os.path.isdir(f'./logs/{sha}'):
+        return jsonify({'status': f'{sha} does not exist'})
+    if not os.path.isfile(f'./logs/{sha}/{name}'):
+        return jsonify({'status': f'{name} does not exist'})
+    return make_response(send_file(
+        f'/opt/app/logs/{sha}/{name}', add_etags=False, cache_timeout=0))
 
 
 @app.route('/check', methods=['POST'])
