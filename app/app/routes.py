@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, redirect, url_for
 # from flask import render_template, flash, redirect, url_for, jsonify, session
 from flask import make_response, send_file
 from app import app
@@ -71,6 +71,7 @@ class Commit:
         send_status('success', self.name, self.owner, self.sha)
 
     def update_progress(self):
+        app.logger.info(f'Current status: {self.status}')
         if self.status == 'pending':
             self.update_status('pending')
 
@@ -235,6 +236,7 @@ def restart(sha):
     status_file.close()
     commit.initialize(data)
     commit.start()
+    return redirect(url_for('status'))
 
 
 @app.route('/status')
