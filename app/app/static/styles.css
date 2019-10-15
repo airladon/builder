@@ -9,17 +9,17 @@ table {
 }
 
 .success {
-  background-color: #D3F3C4;
+  background-color: #E3FFE1;
 }
 
 .cancelled,
 .error,
 .failure {
-  background-color: #F3C4C4;
+  background-color: #FEEBEB;
 }
 
 .pending {
-  background-color: #F3F3C4;
+  background-color: #FFFFE1;
 }
 
 .test_item {

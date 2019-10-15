@@ -105,10 +105,19 @@ tail = '''
 
 def status_page():
     files = []
+    dates = []
     for r, d, f in os.walk('./logs'):
         for file in f:
             if file == 'status.txt':
                 files.append(os.path.join(r, file))
+                status_file = open(os.path.join(r, file), 'r')
+                status = json.loads(status_file.read())
+                dates.append(status['start'])
+                status_file.close()
+
+    zipped_pairs = zip(dates, files)
+    files = [x for _, x in sorted(zipped_pairs)]
+
     out_str = header
     for f in files:
         with open(f, 'r') as status_file:
