@@ -81,7 +81,9 @@ class Commit:
         self.status = 'not_started'
 
     def get_status(self):
-        return get_status(self.sha)
+        if self.sha is not None:
+            return get_status(self.sha)
+        return 'not_started'
 
     def send_success(self):
         self.update_status('success')
