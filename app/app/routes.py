@@ -187,7 +187,7 @@ class Commit:
             'from_branch': self.from_branch,
             'to_branch': self.to_branch,
             'owner': self.owner,
-            'url': self.html_url,
+            'url': self.url,
             'name': self.name,
         }
         file.write(json.dumps(status, indent=4, sort_keys=True))
