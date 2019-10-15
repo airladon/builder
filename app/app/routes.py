@@ -154,13 +154,10 @@ class Commit:
         jobs = []
 
     def start(self):
-        app.logger.info(datetime.datetime.now())
         self.stopJobs()
-        app.logger.info(datetime.datetime.now())
         app.logger.info(
             f'Starting job for PR: {self.pr_number}, commit: {self.sha}')
         self.send_pending()
-        app.logger.info(datetime.datetime.now())
         self.close_file()
         # time.sleep(20)
         # self.send_fail()
@@ -169,7 +166,7 @@ class Commit:
         job.start()
         global jobs
         jobs.append(job)
-        app.logger.info(f'job: {job}')
+        app.logger.info(f'Job started: {job}')
 
     def update_status(self, status):
         self.status = status
@@ -204,6 +201,7 @@ def restart():
 
 @app.route('/status')
 def status():
+    commit.update_progress()
     return status_page()
     # Get all status files
     # Sort by time
@@ -233,7 +231,6 @@ def check():
     event = request.headers.get('X-Github-Event')
     if event == 'pull_request':
         data = request.get_json()
-        app.logger.info(data)
         to_branch = data['pull_request']['base']['ref']
         action = data['action']
         if (to_branch != 'master' and to_branch != 'build-integration') \
