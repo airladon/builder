@@ -275,10 +275,10 @@ def show_log(sha):
 def show_file(sha, name):
     if not os.path.isdir(f'./logs/{sha}'):
         return jsonify({'status': f'{sha} does not exist'})
-    if not os.path.isfile(f'./logs/{sha}/{name}'):
+    if not os.path.isfile(f'./logs/{sha}/diff/{name}'):
         return jsonify({'status': f'{name} does not exist'})
     return make_response(send_file(
-        f'/opt/app/logs/{sha}/{name}', add_etags=False, cache_timeout=0))
+        f'/opt/app/logs/{sha}/diff/{name}', add_etags=False, cache_timeout=0))
 
 
 @app.route('/check', methods=['POST'])
