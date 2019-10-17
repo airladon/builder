@@ -213,10 +213,10 @@ class Commit:
 commit = Commit()
 
 
-@app.route('/')
-def home():
-    app.logger.info('hello')
-    return jsonify({'status': 'ok'})
+# @app.route('/')
+# def home():
+#     app.logger.info('hello')
+#     return jsonify({'status': 'ok'})
 
 
 @app.route('/restart/<sha>')
@@ -297,3 +297,11 @@ def check():
         commit.initialize(data)
         commit.start()
     return jsonify({'status': 'ok'})
+
+
+@app.route('/stop/<sha>', methods=['POST'])
+def check():
+    if sha == commit.sha:
+        commit.stopJobs()
+        return jsonify({'status': 'stopped'})
+    return jsonify({'status': f'{sha} not running'})
