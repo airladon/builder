@@ -299,7 +299,7 @@ def check():
     return jsonify({'status': 'ok'})
 
 
-@app.route('/stop/<sha>', methods=['POST'])
+@app.route('/stop/<sha>')
 def stop(sha):
     if sha == commit.sha:
         commit.stopJobs()
