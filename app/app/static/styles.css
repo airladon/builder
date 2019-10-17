@@ -85,6 +85,7 @@ table {
   margin-top: 1em;
   float: right;
   font-size: 0.9em;
+  margin-right: 1em;
 }
 
 @media screen and (max-width: 600px) {

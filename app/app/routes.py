@@ -303,5 +303,5 @@ def check():
 def stop():
     if sha == commit.sha:
         commit.stopJobs()
-        return jsonify({'status': 'stopped'})
-    return jsonify({'status': f'{sha} not running'})
+        return redirect(url_for('status'))
+    return redirect(url_for('status'))
