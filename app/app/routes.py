@@ -288,9 +288,12 @@ def check():
         data = request.get_json()
         to_branch = data['pull_request']['base']['ref']
         action = data['action']
-        if (to_branch != 'master' and to_branch != 'build-integration') \
-                or action == 'closed':
+        if (to_branch != 'master' and to_branch != 'build-integration'):
             return jsonify({'status': 'no action'})
+        if action == 'closed' \
+            and data['pull_request']['head']['sha'] == commit.sha:
+            commit.stopJobs()
+            return jsonify({'status': 'closed'})
         commit.initialize(data)
         commit.start()
     return jsonify({'status': 'ok'})

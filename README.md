@@ -12,6 +12,7 @@ The two containers talk to each other over a private network (see `isolated_nw` 
 
 The ngingx-server has PORT 80 exposed for http traffic.
 
+Gunicorn communicates on port 4000, but it is not exp
 
 ## Setup Server
 
@@ -96,5 +97,15 @@ cd builder
 To enter the builder-prod container while it is running use:
 ```
 docker exec -it builder-prod bash
+```
+
+To access gunicorn directly use port 5020 after running:
+```
+./start_env.sh prod
+```
+
+To run the builder-prod container with direct access to flask on port 5023 use:
+```
+./start_env.sh dev-server
 ```
 
