@@ -71,11 +71,11 @@ then
   stop_dev_server
 fi
 
-if [ $1 = "stage" ];
-then
-  HOST_PORT=5021
-  CONTAINER_PORT=5000
-fi
+# if [ $1 = "stage" ];
+# then
+#   HOST_PORT=5021
+#   CONTAINER_PORT=5000
+# fi
 
 if [ $1 = "dev" ];
 then
