@@ -300,7 +300,7 @@ def check():
 
 
 @app.route('/stop/<sha>', methods=['POST'])
-def check():
+def stop():
     if sha == commit.sha:
         commit.stopJobs()
         return jsonify({'status': 'stopped'})
