@@ -300,7 +300,7 @@ def check():
 
 
 @app.route('/stop/<sha>', methods=['POST'])
-def stop():
+def stop(sha):
     if sha == commit.sha:
         commit.stopJobs()
         return redirect(url_for('status'))

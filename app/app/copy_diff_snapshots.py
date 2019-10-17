@@ -85,7 +85,7 @@ def create_row(status):
     if status['status'] == 'pending':
         out_str = f'''{out_str}
             <div class=stop>
-                <a href="/stop/{status['commit']}">Restart</a>
+                <a href="/stop/{status['commit']}">Stop</a>
             </div>
         '''
     out_str = f'{out_str}</div>'
