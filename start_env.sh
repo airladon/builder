@@ -175,6 +175,7 @@ else
     -v $PROJECT_PATH/start_env.sh:/opt/app/start_env.sh \
     -v $PROJECT_PATH/restart.sh:/opt/app/restart.sh \
     -v $PROJECT_PATH/logs:/opt/app/logs \
+    -v $PROJECT_PATH/temp:/opt/app/temp \
     -v /var/run/docker.sock:/var/run/docker.sock \
     --env-file=$LOCAL_PROJECT_PATH/containers/env.txt \
     -e HOST_PATH=$PROJECT_PATH \

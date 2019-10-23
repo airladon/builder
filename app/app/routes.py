@@ -7,7 +7,7 @@ import shutil
 import os
 import requests
 import datetime
-from app.copy_diff_snapshots import copy_diff_snapshots, status_page
+from app.copy_diff_snapshots import copy_diff_snapshots, status_page, files_page
 import json
 # from subprocess import PIPE, STDOUT
 import multiprocessing
@@ -305,3 +305,15 @@ def stop(sha):
         commit.stopJobs()
         return redirect(url_for('status'))
     return redirect(url_for('status'))
+
+
+@app.route('/tempfiles')
+def tempfiles():
+    return files_page()
+
+
+@app.route('/tempfile/<file>')
+def tempfile(file):
+    return make_response(send_file(
+        f'/opt/app/temp/{file}', add_etags=False, cache_timeout=0))
+

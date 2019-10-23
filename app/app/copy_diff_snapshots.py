@@ -42,7 +42,7 @@ def get_diffs(sha):
 def create_row(status):
     out_str = f'''<div class="{status['status']} test_item">
     <div class="title">
-        PR {status["pr"]}
+        PR {status["pr"]} - {status["from_branch"]}
     </div>
     <div class="subtitle">
         {status["repository"]}
@@ -131,4 +131,22 @@ def status_page():
             out_str = f'{out_str}{create_row(status)}'
         # app.logger.info(status)
     out_str = f'{out_str}{tail}'
+    return out_str
+
+
+def files_page():
+    files = []
+    for r, d, f in os.walk('./temp'):
+        for file in f:
+            files.append(file)
+
+    out_str = header
+    for f in files:
+        print(f)
+        out_str = f'''{out_str}
+        <div class="diff">
+            <a href="/tempfile/{f}">{f}</a>
+        </div>'''
+    out_str = f'{out_str}{tail}'
+    print(out_str)
     return out_str
